@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>RequireEs Server</title>
+</head>
+<body>
+    <script src="build/requirees.js"></script>
+    <script>
+        //register some react versions
+        require.register({react: {versions: ['0.14.9', '15.6.2', '15.6.1', '15.3.1'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'}});
+        require.register({jquery: {versions: ['3.1.0','3.5.0', '3.4.1'], url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/${version}/jquery.min.js'}});
+        require.register({'jquery@3.2.0-default': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/jquery.min.js'});
+        define("mypackage.js", ["react@^0.0.0", "jquery@3.4.1"], function(react, jq, j){console.log('Run the factory of my package', react.version, jq.fn.jquery, j)});
+        require.register({"mypackage.json": "https://jsonplaceholder.typicode.com/posts"});
+        require.register({"hello-world": {url: "tag!src/samples/helloWorld.js"}});
+        require.register({'bootstrap': {url: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css'}});
+        require.register({"thispage.html": {url: "http://127.0.0.1:4000"}});
+
+        define("my-component.html@0.0.0-default", [], "<section><h1>this is a test</h1></section>");
+        define("my-component.css@0.0.0-default", [], "h1{color:#ccc}");
+        define("my-component.tag@0.0.0-default", [], class MyComponent extends HTMLElement{
+            constructor(){
+                super();
+                this.startup();
+            }
+            async startup(){
+                const version = this.getAssociatedVersion();
+                const everything = await version.loadFileType('js');
+                this.appendChild(everything.html);
+                /* alternative
+                const html = await version.loadFileType('html');
+                this.appendChild(html);
+                 */
+            }
+        });
+        define("my-component.js@0.0.0-default", ['react'], async function(r){
+            return {
+                react: r,
+                css: await this.loadFileType('css'),
+                html: await this.loadFileType('html')
+            }
+        });
+
+
+        define("my-component.html@2.5.0", [], "<section><h1>this is version 2</h1></section>");
+        define("my-component.css@2.5.0", [], "h1{color:#f00}");
+        define("my-component.tag@2.5.0", [], class MyComponent extends HTMLElement{
+            constructor(){
+                super();
+                this.startup();
+            }
+            async startup(){
+                const version = this.getAssociatedVersion();
+                const html = await version.loadFileType('html');
+                this.appendChild(html);
+            }
+        });
+
+        //require.register({"thispage": {url: "src/samples/htmlTags.html"}});
+        /*
+        const test = async ()=>{
+            const reactbla = await require('react');
+            console.dir(reactbla);
+        };
+        test();
+*/
+        require(['bootstrap'], bootstrap => console.log('bootstrap', bootstrap));
+        require('hello-world');
+    </script>
+    <hello-world></hello-world>
+    <my-component></my-component>
+
+</body>
+</html>
