@@ -118,12 +118,16 @@ class RegistryAttributes{
     }
 
     _getVersionInfo(packageName, url){
-        const versionFromPackagName = RegistryAttributes.getVersionFromName(packageName);
-        if(versionFromPackagName && versionFromPackagName === 'default'){
+        const versionFromPackageName = RegistryAttributes.getVersionFromName(packageName);
+        if(versionFromPackageName === null || versionFromPackageName === 'default'){
             const versionFromUrl = RegistryAttributes.getVersionFromUrl(url);
-            return versionFromUrl ? `${versionFromUrl}-default` : 'default';
+            if(versionFromPackageName === 'default'){
+                return versionFromUrl ? `${versionFromUrl}-default` : 'default';
+            }else{
+                return versionFromUrl;
+            }
         }else{
-            return RegistryAttributes.getVersionFromUrl(url);
+            return versionFromPackageName;
         }
     }
 

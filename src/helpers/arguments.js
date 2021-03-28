@@ -22,11 +22,11 @@ function getDefinitionArguments(args){
 
 //convert relative urls (./ ../)
 function convertRelativeUrls(urls){
-    const currentScript = getCurrentScriptLocation();
     return urls.map(url => {
         if(url.charAt(0)==='.'){
             //relative url
-            const absUrl = new URL(url, currentScript);
+            const currentScriptUrl = getCurrentScriptLocation();
+            const absUrl = new URL(url, currentScriptUrl);
             return absUrl.href;
         }else{
             //none relative url
@@ -43,7 +43,7 @@ function getCurrentScriptLocation(){
         return baseUrl;
     }else{
         const scripts= document.getElementsByTagName('script');
-        return scripts[scripts.length-1].src;
+        return scripts[scripts.length-1]?.src;
     }
 }
 

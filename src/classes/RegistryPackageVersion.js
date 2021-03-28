@@ -39,6 +39,20 @@ export default class{
         }
     }
 
+    isSpecified(filetype){
+        const sFiletype = filetype?.type || filetype;
+        if(typeof sFiletype === 'string'){
+            const loadedFileType = this.filetypes[sFiletype];
+            return loadedFileType?.hasOwnProperty('exports') || false;
+        }else{
+            const filetypes = Object.keys(this.filetypes);
+            for(let i=0; filetypes.length > i; i++){
+                if(this.filetypes[filetypes[i]].hasOwnProperty('exports')===false) return false;
+            }
+            return true;
+        }
+    }
+
     _processFileType(options){
         options.type = options.type || RegistryAttributes.guessType(options.url) || 'js';
         if(!(typeof this.filetypes[options.type] === 'object')) this.filetypes[options.type] = {urls:[]};

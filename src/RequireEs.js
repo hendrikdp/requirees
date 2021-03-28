@@ -1,7 +1,7 @@
 import {getDefinitionArguments, getRequireArguments} from "./helpers/arguments.js";
 import currentTagLoad from './helpers/currentTagLoad.js';
-import Registry from './helpers/Registry.js';
-import Loaders from './helpers/Loaders.js';
+import Registry from './classes/Registry.js';
+import Loaders from './classes/Loaders.js';
 import {root} from "./require-global";
 import {transformRJSPaths} from './helpers/requireJsTransformers.js';
 
@@ -66,11 +66,9 @@ export default class{
     }
 
     specified(packageName){
-        //todo implement specified functionality
         if(typeof packageName === 'string'){
-            const pckg = this.findOne(packageName);
-            console.log('is this package specified', pckg);
-            return false;
+            const result = this.findOne(packageName);
+            return result.match && result.match.isSpecified(result.attrs) || false;
         }
         return false;
     }
