@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/peter-vdc/requirees/branch/master/graph/badge.svg)](https://codecov.io/gh/peter-vdc/requirees)
+
 # Require-es
 ## A microfrontend module loader
 
