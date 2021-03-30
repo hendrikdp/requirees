@@ -3,3 +3,4 @@ coverage
 .idea
 package-lock.json
 jest.json
+build/

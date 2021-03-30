@@ -9,14 +9,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js
+      - name: Use Node 14
         uses: actions/setup-node@v1
         with:
           node-version: '14.x'
-      - name: Babel Building
+      - name: Building the code
       - run: npm run build
-      - name: Jest Tests
-      - run: npm test
+      - name: Generate code coverage
+      - run: npm run test
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
