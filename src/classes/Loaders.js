@@ -48,7 +48,7 @@ export default class{
     load(searchResult={}, options={}){
         const attrs = searchResult.attrs;
         if(!searchResult.match){
-            console.warn(`Oh fudge, we did not find any package '${attrs && attrs.name || '<unknown>'}' that matches version '${attrs && attrs.version && attrs.version.str || '<unknown>'}'`);
+            console.warn(`RequireEs - Oh fudge, we did not find any package '${attrs && attrs.name || '<unknown>'}' that matches version '${attrs && attrs.version && attrs.version.str || '<unknown>'}'`);
             return null;
         }else{
             let packageFiletypes = searchResult.match.filetypes;

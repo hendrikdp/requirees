@@ -3,7 +3,8 @@ import {constants} from "../require-global.js";
 
 export default class{
 
-    constructor(options){
+    constructor(options, parent){
+        this.parent = parent;
         this.versions = [];
         this.isDirty = false;
         this.name = options.name;

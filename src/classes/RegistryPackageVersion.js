@@ -39,6 +39,7 @@ export default class{
         }
     }
 
+    //check if the files for this packages are all loaded and ready to go
     isSpecified(filetype){
         const sFiletype = filetype?.type || filetype;
         if(typeof sFiletype === 'string'){
@@ -53,13 +54,41 @@ export default class{
         }
     }
 
+    //add urls, add factory, create filetype, ...
     _processFileType(options){
         options.type = options.type || RegistryAttributes.guessType(options.url) || 'js';
-        if(!(typeof this.filetypes[options.type] === 'object')) this.filetypes[options.type] = {urls:[]};
-        if(typeof options.factory !== 'undefined') this.filetypes[options.type].factory = options.factory;
-        if(options.dependencies instanceof Array) this.filetypes[options.type].dependencies = options.dependencies;
-        if(this.filetypes[options.type].urls.indexOf(options.url)===-1) this.filetypes[options.type].urls.push(options.url);
-        return this.filetypes[options.type];
+        if(typeof this.filetypes[options.type] !== 'object') this.filetypes[options.type] = {urls:[]};
+        const fileToProcess = this.filetypes[options.type];
+        if(typeof options.factory !== 'undefined') this._setFactory(options.factory, fileToProcess);
+        if(options.dependencies instanceof Array) fileToProcess.dependencies = options.dependencies;
+        if(fileToProcess.urls.indexOf(options.url)===-1) fileToProcess.urls.push(options.url);
+        return fileToProcess;
+    }
+
+    //sets the factory for a certain filetype (if allowed)
+    _setFactory(factory, file){
+        if(this._canBeDefined(file)){
+            delete file.dfr;
+            delete file.exports;
+            file.factory = factory;
+        }else{
+            console.warn(`RequireEs - Computer says no: package ${this.parent.name} - ${this.str} is already defined... Redefining this package is not allowed!`);
+        }
+    }
+
+    //get the general settings from requirees.config()
+    _getRequireEsConfigOptions(){
+        return this.parent?.parent?.parent?.options;
+    }
+
+    //check if the package can be defined or redefined
+    _canBeDefined(file){
+        if(file.hasOwnProperty('exports')){
+            const requireEsConfig = this._getRequireEsConfigOptions();
+            return requireEsConfig.allowRedefine || false;
+        }else{
+            return true;
+        }
     }
 
     _getVersionStr(){

@@ -4,7 +4,8 @@ import {constants} from '../require-global.js';
 
 export default class{
 
-    constructor(options){
+    constructor(options, parent){
+        this.parent = parent;
         this.options = options;
         this.packages = {};
     }
@@ -17,7 +18,7 @@ export default class{
         if(files instanceof Array){
             files.forEach(file =>{
                 if(!this.packages[file.name]){
-                    this.packages[file.name] = new Package(file);
+                    this.packages[file.name] = new Package(file, this);
                 }
                 this.packages[file.name].add(file);
             });

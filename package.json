@@ -19,7 +19,9 @@
   "keywords": [
     "module",
     "loader",
-    "amd"
+    "amd",
+    "microfrontend",
+    "requirejs"
   ],
   "author": "Hendrik De Permentier",
   "license": "Beerware",

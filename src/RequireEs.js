@@ -7,8 +7,9 @@ import {transformRJSPaths} from './helpers/requireJsTransformers.js';
 
 export default class{
 
-    constructor(){
-        this.registry = new Registry();
+    constructor(options){
+        this.registry = new Registry(options, this);
+        this.options = options || {};
         this.amd = {};
         this.loaders = new Loaders(this);
     }
@@ -63,6 +64,7 @@ export default class{
 
     config(options = {}){
         if(typeof options.paths !== 'undefined') transformRJSPaths(options.paths).forEach(this.register.bind(this));
+        if(typeof options.allowRedefine !== 'undefined') this.options.allowRedefine = options.allowRedefine;
     }
 
     specified(packageName){
