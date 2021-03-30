@@ -61,7 +61,7 @@ describe('Registry handling - when no version number is provided', ()=>{
         reg.add([{'react': 'https://cdnjs.cloudflare.com/ajax/libs/react/15.5.3/react.min.js'}]);
         expect(reg.toJson()).toEqual(expectedResultReact1553);
     });
-
+    /*
     test('Process multiple sources for 1 package', ()=>{
         const reg = new Registry();
         reg.add(argumentsToAddReact4);
@@ -73,6 +73,7 @@ describe('Registry handling - when no version number is provided', ()=>{
         reg.add(argumentsToAddReact5);
         expect(reg.toJson()).toEqual(expectedResultReact1553MultipleSources);
     });
+    */
 });
 
 describe('Registry handling - Add multiple packages', ()=>{
