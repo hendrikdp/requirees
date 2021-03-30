@@ -13,8 +13,8 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '14.x'
-      - name: Building the code
-      - run: npm run build
+      #- name: Building the code
+      #- run: npm run build
       - name: Generate code coverage
       - run: npm run test
       - name: Archive production artifacts
