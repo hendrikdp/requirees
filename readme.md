@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/peter-vdc/requirees/branch/master/graph/badge.svg)](https://codecov.io/gh/peter-vdc/requirees)
+[![codecov](https://codecov.io/gh/hendrikdp/requirees/branch/master/graph/badge.svg?token)](https://codecov.io/gh/hendrikdp/requirees)
 
 # Require-es
 ## A microfrontend module loader
