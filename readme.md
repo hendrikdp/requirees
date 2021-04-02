@@ -58,7 +58,7 @@ Filetypes can be loaded separately using the following syntax:
 * extension!packageName@version
 * packageName.extension@version
 
-In this case you can only load the bootstrap css, version 3.4.1 as follows:
+3 ways to only add the css to the page for version 3.4.1:
 ```js
 await require('bootstrap.css@^3.0.0');
 requirees('bootstrap.css@^3.0.0').then(cssTag => console.log('bootstrap css tag', cssTag))
