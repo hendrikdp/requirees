@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test events calls Add wiretap to spy on all events 1`] = `
+Array [
+  Array [
+    Object {
+      "foo": "bar",
+    },
+    "myevent",
+  ],
+  Array [
+    Object {
+      "foo2": "bar2",
+    },
+    "myevent2",
+  ],
+]
+`;

@@ -12,7 +12,19 @@ const constants = {
     registryElementAttributeKeys: ['version', 'url', 'urls', 'name', 'sort', 'versions', 'type', 'factory', 'dependencies'],
     versionFormat: ['major', 'minor', 'patch', 'build', 'rc'],
     returnDefaultOnVersionStr: ['default','anonymous'],
-    toleranceFormat: ['*','^','~']
+    toleranceFormat: ['*','^','~'],
+    events: {
+        pre: 'pre-',
+        register: 'register',
+        define: 'define',
+        loadFile: 'file-load',
+        wireTapEventName: 'requirees.wiretaps',
+        resolve: {
+            regexp: /^([\w\.]*)(\[([0-9]*)\])?$/,
+            fnName: 1,
+            fnIndex: 3
+        }
+    }
 };
 
 export {root, constants};

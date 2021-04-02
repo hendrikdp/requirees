@@ -7,8 +7,11 @@ const confirmDefine = function({factory, dependencies}){
     if(typeof currentTag.confirmDefine === 'function' && typeof currentTag.versiontype === 'object'){
         currentTag.versiontype.dependencies = dependencies;
         currentTag.confirmDefine(factory);
+        currentTag.confirmDefine = null;
+        return {currentTag, success: true}
+    }else{
+        return {currentTag, success: false}
     }
-    currentTag.confirmDefine = null;
 };
 
 const getCurrentVersion = function() {

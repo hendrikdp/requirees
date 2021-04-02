@@ -1,4 +1,5 @@
 import ReservedDependencies from './ReservedDependenciesHandlers.js';
+import {constants} from "../require-global.js";
 
 import css from '../loaders/css.js';
 import txt from '../loaders/txt.js';
@@ -13,7 +14,7 @@ export default class{
 
     constructor(requireContext){
         this.requireContext = requireContext;
-        this.reservedDependencies = new ReservedDependencies();
+        this.reservedDependencies = new ReservedDependencies(requireContext);
         this.loaders = {};
         this.unloaders = {};
         this.factoryRunners = {};
@@ -92,6 +93,7 @@ export default class{
 
     loadTypeFromVersion(version, type){
         const versiontype = version.filetypes[type];
+        this._publishEvt(`${constants.events.pre}${constants.events.loadFile}`,{package: version.parent, versiontype, version});
         if(typeof versiontype === 'object' && versiontype !== null){
             if(typeof versiontype.exports !== 'undefined'){
                 return versiontype.exports;
@@ -107,9 +109,18 @@ export default class{
                             this._resolveFactoryDependencies(resolve, version, type)
                         });
                     }
-                });
+                }).then(
+                    instance => {
+                        this._publishEvt(constants.events.loadFile, {package: version.parent, instance, versiontype, version});
+                        return instance;
+                    }
+                );
             }
         }
+    }
+
+    _publishEvt(evt, data){
+        this.requireContext.events.publish(evt,data);
     }
 
     _resolveFactoryDependencies(resolve, version, type){
@@ -121,7 +132,7 @@ export default class{
                 if(reservedDependencyNames.indexOf(dependency)>-1){
                     return this.reservedDependencies.get(dependency, versiontype);
                 }else{
-                    return this.requireContext.getPromise(dependency);
+                    return this.requireContext.get(dependency);
                 }
             });
             return Promise.all(loadingDependencies).then(deps => this._resolveFactory(resolve, version, type, deps));
