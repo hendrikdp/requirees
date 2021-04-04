@@ -3,34 +3,40 @@
 # Require-es
 [A microfrontend module loader](#intro)<br/>
 [Installation](#install)<br/>
+[Migration from RequireJs](#migrage)<br/>
 [Register a package](#register)<br/>
 [Require a package](#require)<br/>
 [Define a package](#define)<br/>
 [RequireEs options](#options)<br/>
-[Hook into RequireEs events](#events)
+[RequireEs events](#events)<br/>
+[WebPack / Rollup bundling for RequireEs](#webpack)<br/>
+[Custom elements support](#custom)
 
 <a name="intro"/>
 
 ## A microfrontend module loader
 
 Require-es will:
-* allow your micro-frontends to share dependencies
-* help to find compatible package-versions
+* allow micro-frontends to share dependencies
+* help finding compatible package-versions
 
-The project will be structured in 2 parts:
-* provide a module loader which can:
-    * load amd modules
+The project will be structured in 3 parts:
+
+* provide a module loader which:
+    * loads amd modules
     * loads multiple filetypes: js / json / xml / txt / html / css / wasm
-    * register multiple versions of a single package
-    * set default-versions
-    * easily migrate from requirejs
+    * registers multiple versions of a single package
+    * can set default-versions
+    * easily migrates from RequireJs
     * emits events to allow usage monitoring
     
 * create a require-es-server, where:
     * packages can be registered
-    * usage of packages can be tracked
-    * module loads can be predicted
+    * usage of package-version can be tracked
+    * module loading can become predictable
     * predictive http2-pushes are possible
+    
+* create a webpack/rollup loader
 
 <a name="install"/>
 
@@ -51,21 +57,32 @@ Serve the file in node_modules/requirees/build/requirees.js in the header of you
 </html>
 ```
 
-## Register a package
-To register a package you can use both:
-* require.register() - syntax specifically for RequireEs
-* require.config({paths}) - requirejs syntax
+<a name="migrate"/>
 
-Both .register() and .config() can be called multiple times. Packages will only be added.
+## Migration from RequireJs
+RequireEs allows a soft transition from RequireJs.
+This means that most syntax of RequireJs, is also supported in RequireEs:
+* define(packageName, [dependencies], factory);
+* define([dependencies], factory);
+* require(['packageName'], packageInstance => {});
+* requirejs(['packageName'], packageInstance => {});
+* require('packageName');
+* requirejs.config({paths});
+
+In a later version, require.config({shim}) will be supported as well. 
+
+More info on RequireJs: https://requirejs.org/
 
 <a name="register"/>
 
-### require.register() 
-#### Usage
+## Register a package
+
+### Usage
 ```js
 require.register({
     packageName1(@)(version)(.filetype)(-default): [
-        url(.filetype), url(.filetype),
+        url(.filetype),
+        url(.filetype),
         url(.filetype),
         ...
     ],
@@ -76,23 +93,28 @@ require.register({
     }
 });
 ```
-PackageName: the name of the package you want to define<br/>
-Version: the version-number of the package - major.minor(.patch)(.build)(-releaseCandidate)<br/>
-Filetype: the extension of the file - js/css/txt/xml/json/html/wasm/tag<br/>
-Default: indicate that this version should be used when no version is specified while requiring<br/>
-Versions: array of versions to fill out in the URL (use placeholder ${version} in the url-string)<br/>
-Url: single url string<br/>
-Urls: when multiple filetypes need to be associated to the package (bootstrap.css, bootstrap.js)
 
-> Note - RequireEs will try to identify the version number in the following order:
-> * Is the 'versions' attribute present in the package-value
-> * Is @version present in the package-name
-> * Is a version present in the url (/17.0.2/)
+Key | Description
+--- | ---
+PackageName | the name of the package
+Version | the version-number in string format: major.minor(.patch)(.build)(-releaseCandidate)
+Filetype | the file-extension - js/css/txt/xml/json/html/wasm/tag
+Default | indicates the default version
+Versions | array of versions to fill out in the URL (use placeholder ${version} in the url-string)
+Url | single url string
+Urls | multiple urls for 1 package
 
-#### Samples
+> Note - Determining the version number, happens in this order:
+> * Is a 'versions' attribute present in the package-value
+> * Is '@version' present in the package-name
+> * Is a version present in the url (cdnjs.com/17.0.2/package.js)
+
+### Samples
 ```js
 //register react, version '17.0.2'
-require.register({react: 'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js'});
+require.register({
+    react: 'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js'
+});
 
 //register react, versions '0.14.9', '15.6.2', '15.7.0', '16.14.0' (set as default), '17.0.2'
 require.register({
@@ -111,7 +133,7 @@ require.register({
         'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js',
     ]
-})
+});
 
 //register bootstrap, both css and js
 require.register({
@@ -123,9 +145,6 @@ require.register({
     ]
 });
 ```
-
-### .config({paths})
-RequireEs allows a soft transition from RequireJs to RequireEs. Therefor we try to follow the same syntax where possible: https://requirejs.org/
 
 <a name="require"/>
 
@@ -164,19 +183,22 @@ require([
 //without registration
 await require(url);
 ```
-PackageName: the name of the package you want to define<br/>
-Version: the version-number of the package - major.minor(.patch)(.build)(-releaseCandidate)<br/>
-Filetype: the extension of the file - js/css/txt/xml/json/html/wasm/tag. If no filetype is specified ALL filetypes will be loaded<br/>
-*: load highest version<br/>
-^: load highest minor<br/>
-~: load highest patch<br/>
+
+Key | Description
+--- | ---
+PackageName | the name of the package
+Version | the version-number in string format: major.minor(.patch)(.build)(-releaseCandidate)
+Filetype | the file-extension - js/css/txt/xml/json/html/wasm/tag; if no filetype is specified ALL filetypes will be loaded
+* | load highest version
+^ | load highest minor-version
+~ | load highest patch-version
 
 > Note - Determining the version number happens in this order
-> * Find best version match, if a versionnumber is specified
+> * Find best version match, if any versionnumber is specified
 > * Find the default, if no versionnumber is specified
 > * Take the highest version number if no default, nor versionnumber are specified
 
-> Note - If no filetype is specified all registered filetypes will download
+> Note - If no filetype is specified all registered filetypes will be loaded
 
 ### Samples
 ```js
@@ -191,8 +213,10 @@ require.register({
 })
 
 //load both css & js from the highest available version (4.6.0)
-const bootstrap = await require('bootstrap'); //4.6.0 will be the default (no default is set)
-const bootstrap = await require('bootstrap@*'); //4.6.0 is the highest registered version
+//4.6.0 will be the default (no default is set)
+const bootstrap = await require('bootstrap');
+//4.6.0 is the highest registered version
+const bootstrap = await require('bootstrap@*');
 
 //load only the css tag from version 3.4.1
 const bootstrapCssTag = await require('bootstrap.css@3.4.1'); //fixed version number
@@ -212,6 +236,7 @@ const bootstrap = await require('https://cdnjs.cloudflare.com/ajax/libs/twitter-
 <a name="define"/>
 
 ## Define a package
+
 ### Usage (follows AMD-pattern)
 ```js
 //named define
@@ -219,17 +244,20 @@ define(packageName(@)(version)(.filetype)(-default), [dependencies], factory);
 //anonymous define
 define([dependencies], factory);
 ```
-PackageName: the name of the package you want to define<br/>
-Version: the version-number of the package - major.minor(.patch)(.build)(-releaseCandidate)<br/>
-Filetype: the extension of the file - js/css/txt/xml/json/html/wasm/tag<br/>
-Default: indicate that this version should be used when no version is specified while requiring<br/>
-Dependencies: package names (or urls) on which this package is dependent
-Factory: function / json / text / HTMLElement / xml / ...
+
+Key | Description
+--- | ---
+PackageName | the name of the package
+Version | the version-number in string format: major.minor(.patch)(.build)(-releaseCandidate)
+Filetype | the file extension - js/css/txt/xml/json/html/wasm/tag
+Default | indicates the default version
+Dependencies | package names (or urls) on which this package is dependent
+Factory | function / json / text / HTMLElement / xml / ...
 
 > Note - The dependency naming rules are equal to the require naming rules:<br/>
 packageName(@)(^)(~)(*)(version)(.filetype) 
 
-> Note - The datatype of the factory can be different depending on the filetype:
+> Note - The datatype of the factory can be different, depending on the filetype:
 > * js: function
 > * json: json-text (gets converted to JSON) / json-object
 > * css: css-text (gets converted to a script-tag)
@@ -262,26 +290,222 @@ define('hello.css', [], 'body{background-color: red}');
 define('hello.css@1.0.0', [], 'body{background-color: red}');
 
 //define an html fragment
-define('hello.html', ['hello.css@^1.0.0'], '<div>bla</div>'); //gets converted to an HTMLElement when required + will automatically add the CSS to the page
-define('hello.html', [], document.createElement('div')); //alternative
+//gets converted to an HTMLElement when required + will automatically add the CSS to the page
+define('hello.html', ['hello.css@^1.0.0'], '<div>bla</div>');
+//alternative
+define('hello.html', [], document.createElement('div'));
+
+//define r.js style
+define('react', reactFactoryFn);
+//using version number
+define('react@17.0.2', react1702FactoryFn);
 ```
 
 <a name="options"/>
 
 ## RequireEs options (coming soon)
 ```js
-/**
-* 
-*/
 require.config({
-    
+    allowRedefine: false,
+    invokeNonMatchedDefines: true
 });
 ```
 
+Key | Description
+--- | ---
+allowRedefine | default: false;<br/>false: you cannot change the factory, for a given package (after it gets required for the first time)<br/>true: the factory can be changed at any time, next require will use the new factory
+invokeNonMatchedDefines | default: false; <br/>automatically invoke anonymous defines which could not be matched to any package in the RequireEs register.
+
 <a name="events"/>
 
-## Hook into RequireEs events (coming soon)
+## RequireEs events
 
-<a name="events"/>
+### Usage
+```js
+//subscribe to an event
+require.on(evtName, callback);
+//require.subscribe is a synonym for require.on
+require.subscribe(evtName, callback);
+
+//publish an event
+require.publish(evtName, payload);
+
+//spy on all events
+require.addWireTap(callback);
+```
+
+### Predefined events
+Event | Trigger
+--- | ---
+requirees.pre-define | when define gets called, but the factory is not stored into the registry yet
+requirees.define | when a package factory was added to the registry
+requirees.pre-register | when require.register or require.config({paths}) are called, but the package it not added to the registry yet
+requirees.register | when a package was added to the registry
+requirees.pre-file-load | before an actual file/factory load is happening
+requirees.file-load | when a file/factory load has completed
+requirees.wiretaps | on all events
+
+### Samples
+```js
+//listen to all files being loaded
+requirees.subscribe('requirees.pre-file-load', ({package}) => {
+    console.log(`start loading package: ${package.name}`);
+})
+
+//listen to all events being triggered
+requirees.addWireTap(console.log);
+//alternative:
+requirees.subscribe('requirees.wiretaps', console.log);
+
+//create custom events
+requirees.subscribe('hendrik.sayHello', data => {
+    console.log('hello!!', data)
+});
+requirees.publish('hendrik.sayHello', {foo: 'bar'});
+```
+
+<a name="webpack"/>
+
+## WebPack / Rollup bundling for RequireEs
+
+### Intro
+In the examples below project-dependencies 'jquery', 'react' and 'lodash' will be removed from your bundle and loaded using RequireEs.
+
+To make this happen:
+* Add RequireEs to the top of your HTML-document
+* Register your dependencies on the document (This will happen automatically using RequireEs-server, coming soon)
+* Load your AMD (/UMD) bundle through RequireEs (recommended), or using a script-tag
+
+Samples for Webpack and Rollup bundling can be found in the sections below.
+
+```js
+//require the AMD module
+require.register({
+    jquery: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
+    react: [
+        'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react/16.10.1/umd/react.production.min.js'
+    ],
+    lodash: [
+        'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js'
+    ]
+});
+
+//require the application package
+await require('/scripts/myLib.amd.js');
+```
+
+If your package is added through a script-tag, call require.config({invokeNonMatchedDefines: true}) to invoke the factory immediately:
+```html
+<script>
+    requirees.config({
+        invokeNonMatchedDefines: true
+    })
+</script>
+<script src="/scripts/myLib.amd.js"></script>
+```
+
+### Build your bundle AMD style
+
+#### Webpack
+```js
+module.exports = {
+    //...
+    output: {
+        libraryTarget: 'amd',
+        filename: 'scripts/myLib.amd.js'
+    },
+    //...
+    externals: {
+      jquery: 'jquery@*',
+      react: 'react@^17.0.0',
+      lodash: 'lodash@^4.17.0'
+    },
+};
+```
+
+#### Rollup
+
+```js
+export default {
+    //...
+    output: {
+        format: 'amd',
+        file: 'scripts/myLib.amd.js',
+        external: ['react', 'jquery', 'lodash'],
+        paths: {
+            react: 'react@^17.0.0',
+            jquery: 'jquery@*',
+            lodash: 'lodash@^4.17.0'
+        }
+    },
+    //...
+};
+```
+
+### Build your bundle UMD style
+
+#### Webpack
+
+```js
+module.exports = {
+    //...
+    output: {
+        libraryTarget: 'umd',
+        filename: 'scripts/myLib.amd.js',
+        library: 'myLib'
+    },
+    //...
+    externals: {
+      jquery: {
+          root: '$',
+          amd: 'jquery@*',
+          commonjs: 'jquery',
+          commonjs2: 'jquery'
+      },
+      react: {
+          root: 'React',
+          amd: 'react@^17.0.0',
+          commonjs: 'react',
+          commonjs2: 'react'
+      },
+      lodash: {
+          root: '_',
+          amd: 'lodash@^4.17.0',
+          commonjs: 'lodash',
+          commonjs2: 'lodash'
+      }
+    },
+};
+```
+
+#### Rollup
+
+```js
+export default {
+    //...
+    output: {
+        format: 'umd',
+        file: 'scripts/myLib.amd.js',
+        name: 'myLib',
+        external: ['react', 'jquery', 'lodash'],
+        paths: {
+            react: 'react@^17.0.0',
+            jquery: 'jquery@*',
+            lodash: 'lodash@^4.17.0'
+        },
+        globals: {
+            react: 'React',
+            jquery: '$',
+            lodash: '_'
+        }
+    },
+    //...
+};
+```
+
+<a name="custom"/>
 
 ## Custom elements support (coming soon)

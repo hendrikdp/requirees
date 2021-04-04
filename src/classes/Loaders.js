@@ -93,7 +93,7 @@ export default class{
 
     loadTypeFromVersion(version, type){
         const versiontype = version.filetypes[type];
-        this._publishEvt(`${constants.events.pre}${constants.events.loadFile}`,{package: version.parent, versiontype, version});
+        this._publishEvt(`${constants.events.ns}${constants.events.pre}${constants.events.loadFile}`,{package: version.parent, versiontype, version});
         if(typeof versiontype === 'object' && versiontype !== null){
             if(typeof versiontype.exports !== 'undefined'){
                 return versiontype.exports;
@@ -111,7 +111,7 @@ export default class{
                     }
                 }).then(
                     instance => {
-                        this._publishEvt(constants.events.loadFile, {package: version.parent, instance, versiontype, version});
+                        this._publishEvt(`${constants.events.ns}${constants.events.loadFile}`, {package: version.parent, instance, versiontype, version});
                         return instance;
                     }
                 );

@@ -20,13 +20,13 @@ export default class{
     define(){
         const args = getDefinitionArguments(arguments);
         const {name, dependencies, factory} = args;
-        this.events.publish(`${constants.events.pre}${constants.events.define}`, {args});
+        this.events.publish(`${constants.events.ns}${constants.events.pre}${constants.events.define}`, {args});
         //Carefull with jQuery: In general, explicitly naming modules in the define() call are discouraged, but jQuery has some special constraints.
         const isNamed = typeof name === 'string' && !(name==='jquery' && typeof factory === 'undefined');
         const returnValue = isNamed ?
             this._defineNamedModule(name, dependencies, factory) :
             this._defineAnonymousModule(dependencies, factory);
-        this.events.publish(constants.events.define, {args});
+        this.events.publish(`${constants.events.ns}${constants.events.define}`, {args});
         return returnValue;
     }
 
@@ -54,7 +54,6 @@ export default class{
     get(){
         //todo: build in fail callback logic
         const {dependencies, callback, loadSinglePackage, options} = getRequireArguments(arguments);
-        this.events.publish(`${constants.events.pre}${constants.events.require}`, );
         const targetInstances = dependencies.map(target => {
             let results = this.findOne(target);
             if(typeof results.match === 'undefined'){

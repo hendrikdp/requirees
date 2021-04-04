@@ -1,6 +1,6 @@
 import RequireEs from '../RequireEs.js';
 
-describe('Registry handling - redefine existing packages', ()=>{
+describe('Registry handling - Redefine existing packages', ()=>{
 
     let requirees;
     let factory1;
@@ -38,3 +38,4 @@ describe('Registry handling - redefine existing packages', ()=>{
     });
 
 });
+

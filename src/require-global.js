@@ -14,6 +14,7 @@ const constants = {
     returnDefaultOnVersionStr: ['default','anonymous'],
     toleranceFormat: ['*','^','~'],
     events: {
+        ns: 'requirees.',
         pre: 'pre-',
         register: 'register',
         define: 'define',
