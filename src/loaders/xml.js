@@ -3,7 +3,7 @@ let domparser = null;
 
 function parseXml(txt){
     if(!domparser) domparser = new DOMParser();
-    return domparser.parseFromString(txtXml, 'application/xml');
+    return domparser.parseFromString(txt, 'application/xml');
 }
 
 function factoryRunner(factory){

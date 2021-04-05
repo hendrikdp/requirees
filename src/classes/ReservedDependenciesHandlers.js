@@ -24,16 +24,15 @@ export default class {
 
 
     moduleHandler(mdl){
-        return mdl.module || (mdl.module = {
-            id: mdl.parent.name,
-            version: mdl,
-            uri: mdl.urls,
-            exports: mdl.exports || (mdl.exports = {})
-        });
+        mdl.uri = mdl.urls;
+        mdl.id = mdl.parent?.name;
+        if(typeof mdl.exports === 'undefined') mdl.exports = {};
+        return mdl;
     }
 
     exportsHandler(mdl){
-        return mdl.exports || (mdl.exports = {});
+        if(typeof mdl.exports === 'undefined') mdl.exports = {};
+        return mdl.exports;
     }
 
     requireHandler(mdl){
