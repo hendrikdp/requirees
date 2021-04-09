@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test RequireJs registrations + registration while getting Automatic registration while getting package 1`] = `
+Object {
+  "cdnjscloudflarecomajaxlibsreactumdreactproductionmin": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "dfr": Promise {},
+          "urls": Array [
+            "https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js",
+          ],
+        },
+      },
+      "major": 16,
+      "minor": 14,
+      "patch": 0,
+      "str": "16.14.0",
+    },
+  ],
+}
+`;

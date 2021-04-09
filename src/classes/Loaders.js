@@ -125,10 +125,12 @@ export default class{
 
     _resolveFactoryDependencies(resolve, version, type){
         const versiontype = version.filetypes[type];
-        const hasDependencies = (versiontype.dependencies instanceof Array && versiontype.dependencies.length);
+        const dependencies = versiontype.dependencies instanceof Array ? versiontype.dependencies : [];
+        const dependenciesShim = versiontype.dependenciesShim instanceof Array ? versiontype.dependenciesShim : [];
+        const allDependencies = dependencies.concat(dependenciesShim);
         const reservedDependencyNames = this.reservedDependencies.reservedDependencyNames;
-        if(hasDependencies){
-            const loadingDependencies = versiontype.dependencies.map(dependency => {
+        if(allDependencies.length){
+            const loadingDependencies = allDependencies.map(dependency => {
                 if(reservedDependencyNames.indexOf(dependency)>-1){
                     return this.reservedDependencies.get(dependency, versiontype);
                 }else{
@@ -154,7 +156,10 @@ export default class{
             //just serve the factory data as is to the module (for instance text)
             factoryResult = versiontype.factory;
         }
-        if(typeof versiontype.exports === 'undefined') versiontype.exports = factoryResult;
+        if(typeof versiontype.exports === 'undefined'){
+            if(typeof versiontype.postFactory === 'function') factoryResult = versiontype.postFactory(factoryResult);
+            versiontype.exports = factoryResult;
+        }
         resolve(versiontype.exports);
     }
 

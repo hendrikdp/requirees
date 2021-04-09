@@ -22,19 +22,23 @@ function getDefinitionArguments(args){
 
 //convert relative urls (./ ../)
 function convertRelativeUrls(urls){
-    return urls.map(url => {
-        if(url.charAt(0)==='.'){
-            //relative url
-            const currentScriptUrl = getCurrentScriptLocation();
-            const absUrl = new URL(url, currentScriptUrl);
-            return absUrl.href;
-        }else{
-            //none relative url
-            return url;
-        }
-    });
+    return urls.map(url => url.charAt(0)==='.' ? normalizeRelativeUrl(url) : url);
 }
 
+//normalize the relative urls (only if a valid extention is provided), otherwise treat it as a package name (RequireJs)
+function normalizeRelativeUrl(url){
+    //todo: remove below with a dynamic list! (use loader registration)
+    const ALLOWED_EXTENTIONS = ['css', 'js', 'html', 'htm', 'json', 'tag', 'txt', 'wasm', 'xml'];
+    const urlFragments = url.match(constants.reExtension);
+    //remove the ./ if no allowed extension is provided
+    if(ALLOWED_EXTENTIONS.indexOf(urlFragments?.[1]) > -1){
+        const currentScriptUrl = getCurrentScriptLocation();
+        const absUrl = new URL(url, currentScriptUrl);
+        return absUrl.href;
+    }else{
+        return url.replace(/^\.\//, '');
+    }
+}
 
 //get the location of the current script
 function getCurrentScriptLocation(){

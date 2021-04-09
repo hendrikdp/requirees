@@ -19,8 +19,7 @@ export default class{
         const version = that.str;
         //at this point only one url should be registered at a time...
         if(!options.url && options.urls instanceof Array) options.url = options.urls[0];
-        if(!options.url) options.url = '';
-        if(options.url.indexOf('${')>-1){
+        if(options.url && options.url.indexOf('${')>-1){
             try{
                 return this._processFileType({...options, url: new Function(['version', 'obj'],"return `" + options.url + "`")(version, that)});
             }catch(e){
@@ -54,6 +53,29 @@ export default class{
         }
     }
 
+    //load dependencies or define exports
+    shim(filetype, shimConfig) {
+        if(typeof shimConfig !== 'object') return;
+        let sFiletype = filetype?.type || filetype;
+        if(typeof sFiletype !== 'string') sFiletype = 'js';
+        const file = this.filetypes[sFiletype];
+        if(file){
+            if(shimConfig.deps instanceof Array) this._addShimDependencies(file, shimConfig.deps);
+            if(typeof shimConfig.exports === 'string') file.postFactory = () => root[shimConfig.exports];
+            if(typeof shimConfig.exports === 'function') file.postFactory = shimConfig.exports();
+        }
+    }
+
+    //multiple shim calls can add multiple dependencies
+    _addShimDependencies(file, dependencies){
+        if(!(file.dependenciesShim instanceof Array)) file.dependenciesShim = [];
+        if(dependencies instanceof Array){
+            dependencies.forEach(dep => {
+                if(typeof dep === 'string' && file.dependenciesShim.indexOf(dep) > -1) file.dependenciesShim.push(dep);
+            });
+        }
+    }
+
     //add urls, add factory, create filetype, ...
     _processFileType(options){
         options.type = options.type || RegistryAttributes.guessType(options.url) || 'js';
@@ -61,7 +83,7 @@ export default class{
         const fileToProcess = this.filetypes[options.type];
         if(typeof options.factory !== 'undefined') this._setFactory(options.factory, fileToProcess);
         if(options.dependencies instanceof Array) fileToProcess.dependencies = options.dependencies;
-        if(fileToProcess.urls.indexOf(options.url)===-1) fileToProcess.urls.push(options.url);
+        if(typeof options.url === 'string' && fileToProcess.urls.indexOf(options.url)===-1) fileToProcess.urls.unshift(options.url);
         return fileToProcess;
     }
 

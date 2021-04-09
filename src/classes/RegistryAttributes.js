@@ -90,7 +90,7 @@ class RegistryAttributes{
     _addFile(packageName, url, version, type, dependencies, factory){
         if(packageName){
             //if there is no package-name, use the url without versionnumber
-            if(!url) url = packageName;
+            if(typeof url === 'undefined') url = packageName;
             //get the package filetype
             type = type || RegistryAttributes.guessType(packageName) || RegistryAttributes.guessType(url);
             const reCleanTypePrefixOnly = type ? new RegExp(`^${type}\!`) : '';
@@ -106,9 +106,9 @@ class RegistryAttributes{
                     .replace(reCleanType, '')
                     .replace(constants.reVersionNumberInUrl, '')
                     .replace(constants.reUrlWithoutProtocolNorSpecialCharacters, ''),
-                url: url
+                url: typeof url === 'string' ? url
                     .replace(reCleanVersionNumber, '')
-                    .replace(reCleanTypePrefixOnly, ''),
+                    .replace(reCleanTypePrefixOnly, '') : false,
                 version,
                 type,
                 dependencies,

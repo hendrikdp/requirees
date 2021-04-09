@@ -39,7 +39,7 @@ describe('Registry handling - Redefine existing packages', ()=>{
 
 });
 
-describe('Test factory runs', ()=>{
+describe('Test factory runs + get + specified functions', ()=>{
 
     let requirees;
     let factoryJs = () => ({'foo': 'bar'});
@@ -54,14 +54,59 @@ describe('Test factory runs', ()=>{
 
     test('Test JS factory run', async () => {
         requirees.define('mylib', [], factoryJs);
+        expect(requirees.specified('mylib')).toBe(false);
         const result = await requirees.get('mylib');
         expect(result).toMatchObject({'foo': 'bar'});
+        expect(requirees.specified('mylib')).toBe(true);
     });
 
-    test('Test HTML factory run', async () => {
+    test('Test JS factory with getPromise fn', async () => {
+        requirees.define('mylib', [], factoryJs);
+        let result = await requirees.getPromise('mylib');
+        result = requirees.getPromise('mylib');
+        expect(result instanceof Promise).toBe(true);
+    });
+
+    test('Test JS factory with callback', async () => {
+        requirees.define('mylib', [], factoryJs);
+        requirees.getPromise('mylib', result => {
+            expect(result instanceof Promise).toBe(true);
+        });
+    });
+
+    test('Test JS factory does return instance directly (on the second load)', async () => {
+        requirees.define('mylib', [], factoryJs);
+        let result = await requirees.get('mylib');
+        result = requirees.get('mylib');
+        expect(result instanceof Promise).toBe(false);
+    });
+
+    test('Test wrong input parameters to specified to return false', async () =>{
+        expect(requirees.specified(['hello'])).toBe(false);
+    });
+
+    /*
+    test('Test Anonymous factory, no execution', async ()=>{
+        requirees.define([], ()=>{global.foo='bar'});
+        expect(global.bar).toBeUndefined();
+    });
+    */
+
+    /*
+    test('Test Anonymous factory, auto execute', async ()=>{
+        requirees.config({invokeNonMatchedDefines: true});
+        await requirees.get('https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js');
+        const reg = requirees.register();
+        expect(global.bar).toBe('bar');
+    });
+    */
+
+    test('Test HTML factory run + check if the package is specified', async () => {
         requirees.define('mylib.html', [], factoryHtml);
+        expect(requirees.specified('mylib.html')).toBe(false);
         const result = await requirees.get('mylib.html');
         expect(result instanceof HTMLElement).toBe(true);
+        expect(requirees.specified('mylib.html')).toBe(true);
     });
 
     test('Test CSS factory run', async () => {
@@ -165,4 +210,55 @@ describe('Test RequireJs syntax', ()=>{
         const result = requirees.register().toJson();
         expect(result).toMatchObject({});
     });
+
+    test('Check if RequireJs paths get ignored if the url is in the wrong format', async ()=>{
+        requirees.config({
+            paths: {myLib: {foo: 'bar'}}
+        });
+        const result = requirees.register().toJson();
+        expect(result).toMatchObject({});
+    });
+
+    test('Check if RequireJs paths do not get corrected if there is a .js extension present', async ()=>{
+        requirees.config({
+            paths: {mylib: 'https://blabla.com/myLib.js?bla'}
+        });
+        const result = requirees.find('mylib');
+        expect(result.matches[0].filetypes.js.urls[0])
+            .toBe('https://blabla.com/myLib.js?bla');
+    });
+
+});
+
+describe('Test RequireJs registrations + registration while getting', ()=>{
+
+    let requirees;
+    beforeEach(()=>{
+        requirees = new RequireEs().asFunction(false);
+    });
+
+    test('Registrations, single registration', ()=>{
+        requirees.register({
+            react: 'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min'
+        });
+        const react = requirees.register().toJson().react;
+        expect(react.length).toBe(1);
+    });
+
+    test('Registrations, multiple packages', ()=>{
+        requirees.register({
+            react: [
+                'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min',
+                'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js'
+            ]
+        });
+        const react = requirees.register().toJson().react;
+        expect(react.length).toBe(2);
+    });
+
+    test('Automatic registration while getting package', async ()=>{
+        requirees('https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js');
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    });
+
 });

@@ -23,26 +23,27 @@ export default class{
         this.events.publish(`${constants.events.ns}${constants.events.pre}${constants.events.define}`, {args});
         //Carefull with jQuery: In general, explicitly naming modules in the define() call are discouraged, but jQuery has some special constraints.
         const isNamed = typeof name === 'string' && !(name==='jquery' && typeof factory === 'undefined');
-        const returnValue = isNamed ?
-            this._defineNamedModule(name, dependencies, factory) :
-            this._defineAnonymousModule(dependencies, factory);
+        //the module can be both be named AND registered.... In that case, register both!
+        //try to defined the anonymous way (do not auto-invoke named modules, only the anonymous ones)
+        const resultAnonymousDefine = this._defineAnonymousModule(dependencies, factory, isNamed);
+        const resultNamedDefine = isNamed ? this._defineNamedModule(name, dependencies, factory) : null;
         this.events.publish(`${constants.events.ns}${constants.events.define}`, {args});
-        return returnValue;
+        return resultNamedDefine || resultAnonymousDefine;
     }
 
     _defineNamedModule(name, dependencies, factory){
         const registryElement = {};
-        registryElement[name] = {dependencies, factory};
+        registryElement[name] = {dependencies, factory, url: false};
         return this.register(registryElement);
     }
 
-    _defineAnonymousModule(dependencies, factory){
+    _defineAnonymousModule(dependencies, factory, preventAutoInvoke){
         //if this is an anonymous define, confirm the currently loading script that loading is done...
         const result = currentTagLoad.confirmDefine({dependencies, factory});
         if(!result.success && result.currentTag instanceof HTMLElement){
             //if no package was confirmed, but a defined function was present... let's register it:
             const registry = this._defineNamedModule(result.currentTag.src, dependencies, factory);
-            if(this.options.invokeNonMatchedDefines){
+            if(!preventAutoInvoke && this.options.invokeNonMatchedDefines){
                 const attrs = new RegistryAttributes([result.currentTag.src]);
                 const pckgName = attrs.files?.[0]?.name;
                 if(pckgName) this.get(pckgName);
@@ -86,9 +87,10 @@ export default class{
     }
 
     config(options = {}){
-        if(typeof options.paths !== 'undefined') transformRJSPaths(options.paths).forEach(this.register.bind(this));
+        if(typeof options.paths !== 'undefined') transformRJSPaths(options.paths).forEach(m => this.register(m));
         if(typeof options.allowRedefine !== 'undefined') this.options.allowRedefine = options.allowRedefine;
         if(typeof options.invokeNonMatchedDefines !== 'undefined') this.options.invokeNonMatchedDefines =  options.invokeNonMatchedDefines;
+        if(typeof options.shim === 'object') this.shim(options.shim);
     }
 
     specified(packageName){
@@ -97,6 +99,19 @@ export default class{
             return result.match && result.match.isSpecified(result.attrs) || false;
         }
         return false;
+    }
+
+    shim(config){
+        Object.keys(config).forEach(packageName => {
+            if(typeof packageName === 'string'){
+                let result = this.findOne(packageName);
+                if(typeof result.match === 'undefined'){
+                    this.register({[packageName]: {url: false}});
+                    result = this.findOne(packageName);
+                }
+                result.match?.shim(result.attrs, config[packageName]);
+            }
+        });
     }
 
     //returns the instance as a function
@@ -109,6 +124,7 @@ export default class{
         requirees.define = this.define.bind(this);
         requirees.config = this.config.bind(this);
         requirees.specified = this.specified.bind(this);
+        requirees.shim = this.shim.bind(this);
         requirees.on = this.events.subscribe.bind(this.events);
         requirees.subscribe = this.events.subscribe.bind(this.events);
         requirees.unsubscribe = this.events.unsubscribe.bind(this.events);

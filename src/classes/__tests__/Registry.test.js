@@ -120,8 +120,8 @@ describe('Registry handling - Add multiple packages', ()=>{
         "react": [
             {
                 "filetypes": {"js": {urls: [
-                    "https://cdnjs.cloudflare.com/ajax/libs/react/15.5.6/react.min.js",
-                    "https://alt.com/15/5/6/react.min.js"
+                    "https://alt.com/15/5/6/react.min.js",
+                    "https://cdnjs.cloudflare.com/ajax/libs/react/15.5.6/react.min.js"
                 ]}},
                 "major": 15,
                 "minor": 5,
@@ -130,8 +130,8 @@ describe('Registry handling - Add multiple packages', ()=>{
             },
             {
                 "filetypes": {"js": {urls:[
-                    "https://cdnjs.cloudflare.com/ajax/libs/react/15.5.3/react.min.js",
-                    "https://alt.com/15/5/3/react.min.js"
+                    "https://alt.com/15/5/3/react.min.js",
+                    "https://cdnjs.cloudflare.com/ajax/libs/react/15.5.3/react.min.js"
                 ]}},
                 "major": 15,
                 "minor": 5,
@@ -140,8 +140,8 @@ describe('Registry handling - Add multiple packages', ()=>{
             },
             {
                 "filetypes": {"js": {urls: [
+                    "https://alt.com/14/8/3/react.min.js",
                     "https://cdnjs.cloudflare.com/ajax/libs/react/14.8.3/react.min.js",
-                    "https://alt.com/14/8/3/react.min.js"
                 ]}},
                 "major": 14,
                 "minor": 8,
@@ -150,8 +150,8 @@ describe('Registry handling - Add multiple packages', ()=>{
             },
             {
                 "filetypes": {"js": {urls: [
+                    "https://alt.com/12/5/6/react.min.js",
                     "https://cdnjs.cloudflare.com/ajax/libs/react/12.5.6/react.min.js",
-                    "https://alt.com/12/5/6/react.min.js"
                 ]}},
                 "major": 12,
                 "minor": 5,
