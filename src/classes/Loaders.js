@@ -126,8 +126,9 @@ export default class{
     _resolveFactoryDependencies(resolve, version, type){
         const versiontype = version.filetypes[type];
         const dependencies = versiontype.dependencies instanceof Array ? versiontype.dependencies : [];
-        const dependenciesShim = versiontype.dependenciesShim instanceof Array ? versiontype.dependenciesShim : [];
-        const allDependencies = dependencies.concat(dependenciesShim);
+        const dependenciesExtra = versiontype.dependenciesExtra instanceof Array ? versiontype.dependenciesExtra : [];
+        const dependenciesPreLoad = versiontype.dependenciesPreLoad instanceof Array ? versiontype.dependenciesPreLoad : [];
+        const allDependencies = dependencies.concat(dependenciesExtra).concat(dependenciesPreLoad);
         const reservedDependencyNames = this.reservedDependencies.reservedDependencyNames;
         if(allDependencies.length){
             const loadingDependencies = allDependencies.map(dependency => {
@@ -166,14 +167,24 @@ export default class{
     _loadFromUrl(version, type, index=0){
         const loader = this.get(type);
         if(typeof loader === 'function'){
-            const urls = version.filetypes[type].urls;
+            const file = version.filetypes[type];
+            const urls = file.urls;
             if(index < urls.length){
                 try{
-                    return loader(urls[index], version, version.filetypes[type]);
+                    return this._waitForPreLoadDependencies(file)
+                        .then(()=>loader(urls[index], version, file));
                 }catch(e){
                     return this._loadFromUrl(version, type,index+1);
                 }
             }
+        }
+    }
+
+    _waitForPreLoadDependencies(file){
+        if(file.dependenciesPreLoad instanceof Array && file.dependenciesPreLoad.length > 0){
+            return this.requireContext.getPromise(file.dependenciesPreLoad);
+        }else{
+            return Promise.resolve();
         }
     }
 

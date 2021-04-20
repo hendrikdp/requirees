@@ -101,6 +101,13 @@ export default class{
         return false;
     }
 
+    undef(packageName){
+        if(typeof packageName === 'string'){
+            const result = this.findOne(packageName);
+            return result.match && result.match.undef(result.attrs);
+        }
+    }
+
     shim(config){
         Object.keys(config).forEach(packageName => {
             if(typeof packageName === 'string'){
@@ -125,6 +132,7 @@ export default class{
         requirees.config = this.config.bind(this);
         requirees.specified = this.specified.bind(this);
         requirees.shim = this.shim.bind(this);
+        requirees.undef = this.undef.bind(this);
         requirees.on = this.events.subscribe.bind(this.events);
         requirees.subscribe = this.events.subscribe.bind(this.events);
         requirees.unsubscribe = this.events.unsubscribe.bind(this.events);

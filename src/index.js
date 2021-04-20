@@ -1,5 +1,3 @@
-import '../node_modules/promise-polyfill/src/polyfill.js';
-
 import {root} from './require-global.js';
 import RequireEs from './RequireEs.js';
 

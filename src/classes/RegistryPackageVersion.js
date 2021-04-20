@@ -53,25 +53,48 @@ export default class{
         }
     }
 
-    //load dependencies or define exports
-    shim(filetype, shimConfig) {
-        if(typeof shimConfig !== 'object') return;
-        let sFiletype = filetype?.type || filetype;
-        if(typeof sFiletype !== 'string') sFiletype = 'js';
-        const file = this.filetypes[sFiletype];
-        if(file){
-            if(shimConfig.deps instanceof Array) this._addShimDependencies(file, shimConfig.deps);
-            if(typeof shimConfig.exports === 'string') file.postFactory = () => root[shimConfig.exports];
-            if(typeof shimConfig.exports === 'function') file.postFactory = shimConfig.exports();
+    //undefine a package (destroy the filetypes)
+    undef(filetype){
+        const sFiletype = filetype?.type || filetype;
+        if(typeof sFiletype === 'string'){
+            delete this.filetypes[sFiletype];
+        }else{
+            Object.keys(this.filetypes).forEach(ft => delete this.filetypes[ft])
         }
     }
 
+    //load dependencies or define exports
+    shim(filetype, shimConfig) {
+        if(typeof shimConfig !== 'object') return;
+        const file = this._getFile(filetype);
+        if(file){
+            if(shimConfig.deps instanceof Array) this._addDependencies(file, shimConfig.deps, 'PreLoad');
+            if(typeof shimConfig.exports === 'string') file.postFactory = () => root[shimConfig.exports];
+            if(typeof shimConfig.exports === 'function') file.postFactory = shimConfig.exports;
+        }
+    }
+
+    //add dependencies
+    addDependencies(filetype, config, preload){
+        if(typeof config !== 'object') return;
+        const file = this._getFile(filetype);
+        this._addDependencies(file, config, preload ? 'PreLoad' : 'Extra');
+    }
+
+    //returns the filetype definition within this version
+    _getFile(filetype){
+        let sFiletype = filetype?.type || filetype;
+        if(typeof sFiletype !== 'string') sFiletype = 'js';
+        return this.filetypes[sFiletype];
+    }
+
     //multiple shim calls can add multiple dependencies
-    _addShimDependencies(file, dependencies){
-        if(!(file.dependenciesShim instanceof Array)) file.dependenciesShim = [];
+    _addDependencies(file, dependencies, type){
+        const key = `dependencies${type}`;
+        if(!(file[key] instanceof Array)) file[key] = [];
         if(dependencies instanceof Array){
             dependencies.forEach(dep => {
-                if(typeof dep === 'string' && file.dependenciesShim.indexOf(dep) > -1) file.dependenciesShim.push(dep);
+                if(typeof dep === 'string' && file[key].indexOf(dep) === -1) file[key].push(dep);
             });
         }
     }

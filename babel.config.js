@@ -16,7 +16,7 @@ module.exports = function babelConfig(api) {
 		],
 		env: {
 			test: {
-				presets: ['@babel/preset-env']
+				presets: ['@babel/env']
 			}
 		}
 	};

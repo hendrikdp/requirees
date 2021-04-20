@@ -20,3 +20,33 @@ Object {
   ],
 }
 `;
+
+exports[`Test shim functionality check if dependencies an be added to different filetypes 1`] = `
+Object {
+  "dependenciesPreLoad": Array [
+    "dep1",
+  ],
+  "postFactory": [Function],
+  "urls": Array [],
+}
+`;
+
+exports[`Test shim functionality check if shim exports can be a function 1`] = `
+Object {
+  "postFactory": [Function],
+  "urls": Array [],
+}
+`;
+
+exports[`Test shim functionality check if shims are registered on unknown packages 1`] = `
+Object {
+  "js": Object {
+    "dependenciesPreLoad": Array [
+      "dep1",
+      "dep2",
+    ],
+    "postFactory": [Function],
+    "urls": Array [],
+  },
+}
+`;

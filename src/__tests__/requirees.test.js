@@ -262,3 +262,68 @@ describe('Test RequireJs registrations + registration while getting', ()=>{
     });
 
 });
+
+describe('Test shim functionality', ()=>{
+
+    let requirees;
+    beforeEach(()=>{
+        requirees = new RequireEs().asFunction(false);
+    });
+
+   test('check if shims are registered on unknown packages', ()=>{
+       requirees.shim({
+           myPackage: {
+               deps: ['dep1', 'dep2'],
+               exports: 'MyGlobalName'
+           }
+       });
+       const result = requirees.findOne('myPackage.js');
+       expect(result.match.filetypes.js.dependenciesPreLoad.length).toBe(2);
+       expect(result.match.filetypes).toMatchSnapshot();
+   });
+
+    test('check if dependencies an be added to different filetypes', ()=>{
+        requirees.shim({
+            'myPackage.css': {
+                deps: ['dep1'],
+                exports: 'MyGlobalName'
+            }
+        });
+        const result = requirees.findOne('myPackage.js');
+        expect(result.match.filetypes.css.dependenciesPreLoad.length).toBe(1);
+        expect(result.match.filetypes.css).toMatchSnapshot();
+    });
+
+    test('check if wrong shim types are ignored', ()=>{
+        requirees.shim({
+            'myPackage': {
+                deps: [{foo: 'bar'}],
+                exports: {}
+            }
+        });
+        const result = requirees.findOne('myPackage.js');
+        expect(result.match.filetypes.js.postFactory).toBeUndefined();
+        expect(result.match.filetypes.js.dependenciesPreLoad.length).toBe(0);
+    });
+
+    test('check if shim exports can be a function', ()=>{
+        requirees.shim({
+            'myPackage': {exports: ()=>{}}
+        });
+        const result = requirees.findOne('myPackage.js');
+        expect(result.match.filetypes.js).toMatchSnapshot();
+    });
+
+    test('check if shim exports execution is triggered (and overrides the exports)', async ()=>{
+        requirees.define('myPackage', [], ()=>{});
+        const shimExportsFn = ()=>{
+            return 'fooo'
+        };
+        requirees.shim({
+            'myPackage': {exports: shimExportsFn}
+        });
+        const result = await requirees('myPackage');
+        expect(result).toBe('fooo');
+    });
+
+});
