@@ -1,6 +1,6 @@
 {
   "name": "requirees",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Simple AMD module loader with version support",
   "main": "build/requirees.js",
   "scripts": {
