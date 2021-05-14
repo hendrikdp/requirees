@@ -137,6 +137,29 @@ describe('Test factory runs + get + specified functions', ()=>{
 
 });
 
+describe('Test CJS loading (if no dependencies are provided, search them as cjs dependencies)', ()=>{
+
+    let requirees;
+    let factoryWithDependency = () => {const test = require('cjsDependency');};
+    beforeEach(()=>{
+        requirees = new RequireEs();
+    });
+
+    test('If dependencies are provided, modules required in the factory should be ignored', ()=>{
+        requirees.define('mylib', ['mdl'], factoryWithDependency);
+        const result = requirees.find('mylib');
+        expect(result.matches[0].filetypes.js.dependencies).toEqual(['mdl']);
+    });
+
+    test('If dependencies are not provided, modules required in the factory should get scanned', ()=>{
+        requirees.define('mylib2', factoryWithDependency);
+        const result = requirees.find('mylib2');
+        expect(result.matches[0].filetypes.js.dependencies).toEqual(['cjsDependency']);
+    });
+
+
+});
+
 describe('Test reserved dependency handlers', ()=>{
 
     let requirees;

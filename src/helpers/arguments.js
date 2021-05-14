@@ -14,8 +14,10 @@ function getDefinitionArguments(args){
         }
     }
     //check for commonjs dependencies if dependencies are missing
-    if(!(defineArguments.dependencies instanceof Array)) defineArguments.dependencies = [];
-    if(typeof defineArguments.factory === 'function') getDependenciesFromFactory(defineArguments);
+    if(!(defineArguments.dependencies instanceof Array)){
+        defineArguments.dependencies = [];
+        if(typeof defineArguments.factory === 'function') getDependenciesFromFactory(defineArguments);
+    }
     //expose defined module
     return defineArguments
 }
