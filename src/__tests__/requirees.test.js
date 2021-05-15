@@ -157,6 +157,45 @@ describe('Test CJS loading (if no dependencies are provided, search them as cjs 
         expect(result.matches[0].filetypes.js.dependencies).toEqual(['cjsDependency']);
     });
 
+});
+
+describe('Test scoped packages registration, and @-signs in urls', ()=>{
+
+    let requirees;
+    beforeEach(()=>{
+        requirees = new RequireEs();
+    });
+
+    test('Only respect @version-number to identify the version, ignore package scope', ()=>{
+        requirees.register({'@myscope/mypackage@4.5.2-rc1': 'https://www.tired.com/@4.5.2-rc1/foo.js'});
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    });
+
+    test('Ignore package scope... Its not a version number', ()=>{
+        requirees.register({'@myscope/mypackage': 'https://www.tired.com/@4.5.2-rc1/foo.js'});
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    });
+
+    test('No version number provided, dont touch the scope', ()=>{
+        requirees.register({'@myscope/mypackage': 'https://www.tired.com/foo.js'});
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    });
+
+
+    test('No scope, nor version number, leave the @signs where they are', ()=>{
+        requirees.register({'mypackage': 'https://www.tired.com/@duffman/foo.js'});
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    });
+
+    test('No versionnumber is allowed when converting the url to a package-name', ()=>{
+        requirees.register('https://www.tired.com/@duffman/@4.20/foo.js');
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    });
+
+    test('Do interpret default as version indication', ()=>{
+        requirees.register({'foo@default': 'https://foo.bar@4.5.2/foo.js'});
+        expect(requirees.register().toJson()).toMatchSnapshot();
+    })
 
 });
 

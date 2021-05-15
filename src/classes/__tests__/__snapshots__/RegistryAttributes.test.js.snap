@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Registry Attributes Check if incorrect versions are not interpreted 1`] = `
+Object {
+  "dependencies": undefined,
+  "factory": undefined,
+  "name": "myjqueryjs@^yeeeezzz",
+  "type": undefined,
+  "url": "myjquery.js@^yeeeezzz",
+  "version": VersionNumber {},
+}
+`;

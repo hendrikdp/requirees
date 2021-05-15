@@ -2,7 +2,7 @@
 
 exports[`Test RequireJs registrations + registration while getting Automatic registration while getting package 1`] = `
 Object {
-  "cdnjscloudflarecomajaxlibsreactumdreactproductionmin": Array [
+  "//cdnjscloudflarecom/ajax/libs/react//umd/reactproductionmin": Array [
     Object {
       "filetypes": Object {
         "js": Object {
@@ -16,6 +16,125 @@ Object {
       "minor": 14,
       "patch": 0,
       "str": "16.14.0",
+    },
+  ],
+}
+`;
+
+exports[`Test scoped packages registration, and @-signs in urls Do interpret default as version indication 1`] = `
+Object {
+  "foo": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "urls": Array [
+            "https://foo.bar@4.5.2/foo.js",
+          ],
+        },
+      },
+      "major": 4,
+      "minor": 5,
+      "patch": 2,
+      "str": "4.5.2",
+    },
+  ],
+}
+`;
+
+exports[`Test scoped packages registration, and @-signs in urls Ignore package scope... Its not a version number 1`] = `
+Object {
+  "@myscope/mypackage": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "urls": Array [
+            "https://www.tired.com/@4.5.2-rc1/foo.js",
+          ],
+        },
+      },
+      "major": 4,
+      "minor": 5,
+      "patch": 2,
+      "rc": "rc1",
+      "str": "4.5.2-rc1",
+    },
+  ],
+}
+`;
+
+exports[`Test scoped packages registration, and @-signs in urls No scope, nor version number, leave the @signs where they are 1`] = `
+Object {
+  "mypackage": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "urls": Array [
+            "https://www.tired.com/@duffman/foo.js",
+          ],
+        },
+      },
+      "major": undefined,
+      "minor": undefined,
+      "str": "anonymous",
+    },
+  ],
+}
+`;
+
+exports[`Test scoped packages registration, and @-signs in urls No version number provided, dont touch the scope 1`] = `
+Object {
+  "@myscope/mypackage": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "urls": Array [
+            "https://www.tired.com/foo.js",
+          ],
+        },
+      },
+      "major": undefined,
+      "minor": undefined,
+      "str": "anonymous",
+    },
+  ],
+}
+`;
+
+exports[`Test scoped packages registration, and @-signs in urls No versionnumber is allowed when converting the url to a package-name 1`] = `
+Object {
+  "//wwwtiredcom/@duffman//foo": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "urls": Array [
+            "https://www.tired.com/@duffman/@4.20/foo.js",
+          ],
+        },
+      },
+      "major": 4,
+      "minor": 20,
+      "str": "4.20",
+    },
+  ],
+}
+`;
+
+exports[`Test scoped packages registration, and @-signs in urls Only respect @version-number to identify the version, ignore package scope 1`] = `
+Object {
+  "@myscope/mypackage": Array [
+    Object {
+      "filetypes": Object {
+        "js": Object {
+          "urls": Array [
+            "https://www.tired.com/@4.5.2-rc1/foo.js",
+          ],
+        },
+      },
+      "major": 4,
+      "minor": 5,
+      "patch": 2,
+      "rc": "rc1",
+      "str": "4.5.2-rc1",
     },
   ],
 }

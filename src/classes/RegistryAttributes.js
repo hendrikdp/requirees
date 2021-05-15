@@ -90,7 +90,7 @@ class RegistryAttributes{
     _addFile(packageName, url, version, type, dependencies, factory){
         if(packageName){
             //if there is no package-name, use the url without versionnumber
-            if(typeof url === 'undefined') url = packageName;
+            if(typeof url === 'undefined') url = packageName.replace(constants.reVersionNumberAtEnd, '');
             //get the package filetype
             type = type || RegistryAttributes.guessType(packageName) || RegistryAttributes.guessType(url);
             const reCleanTypePrefixOnly = type ? new RegExp(`^${type}\!`) : '';
@@ -98,16 +98,13 @@ class RegistryAttributes{
             //try to get a versionnumber
             version = version || this._getVersionInfo(packageName, url);
             if(!(version instanceof VersionNumber)) version = new VersionNumber(version);
-            const reCleanVersionNumber = new RegExp(this._getRegexpVersionString(version));
             //clean package-name and url
             this.files.push({
                 name: packageName
-                    .replace(reCleanVersionNumber, '')
+                    .replace(constants.reFindVersionNumber, '')
                     .replace(reCleanType, '')
-                    .replace(constants.reVersionNumberInUrl, '')
                     .replace(constants.reUrlWithoutProtocolNorSpecialCharacters, ''),
                 url: typeof url === 'string' ? url
-                    .replace(reCleanVersionNumber, '')
                     .replace(reCleanTypePrefixOnly, '') : false,
                 version,
                 type,
@@ -118,9 +115,9 @@ class RegistryAttributes{
     }
 
     _getVersionInfo(packageName, url){
-        const versionFromPackageName = RegistryAttributes.getVersionFromName(packageName);
+        const versionFromPackageName = RegistryAttributes.getVersionString(packageName);
         if(versionFromPackageName === null || versionFromPackageName === 'default'){
-            const versionFromUrl = RegistryAttributes.getVersionFromUrl(url);
+            const versionFromUrl = RegistryAttributes.getVersionString(url);
             if(versionFromPackageName === 'default'){
                 return versionFromUrl ? `${versionFromUrl}-default` : 'default';
             }else{
@@ -131,20 +128,19 @@ class RegistryAttributes{
         }
     }
 
-    _getRegexpVersionString(version){
-        return '@(' +
-            version.str.replace(/\./g, '\\\.')
-                .replace('^', '\\\^')
-                .replace('*', '\\\*')
-            + ')?(-?default)?$'
+    static getVersionString(value){
+        //check the version-number is present in the url or packagename
+        if(value){
+            const version = value.match(constants.reFindVersionNumber);
+            return (version && version.length===7) ? version[1] : null;
+        }
     }
 
     //guess the filetype from the name or url
     static guessType(value){
         if(value){
             //remove version if present
-            const indexOfAtSign = value.indexOf('@');
-            if(indexOfAtSign>-1) value = value.substring(0, indexOfAtSign);
+            value = value.replace(constants.reFindVersionNumber, '');
             //first check if the filetype is provided in the name (html!myHtmlFragment)
             const indexOfExclamation = value.indexOf('!');
             if(indexOfExclamation > -1){
@@ -152,24 +148,8 @@ class RegistryAttributes{
             }else{
                 //try to fetch a valid extension from the first urls
                 const extension = constants.reExtension.exec(value);
-                if(extension && extension.length===2) return extension[1];
+                if(extension && extension.length===3) return extension[1];
             }
-        }
-    }
-
-    static getVersionFromName(packageName){
-        //check if the name contains an @-sign
-        if(packageName){
-            const iOfAtSign = packageName.indexOf('@');
-            return iOfAtSign > -1 ? packageName.substr(iOfAtSign+1) : null;
-        }
-    }
-
-    static getVersionFromUrl(url){
-        //check the version-number is present in the url
-        if(url){
-            const version = url.match(constants.reVersionNumberInUrl);
-            return (version && version.length===5) ? version[1] : null;
         }
     }
 

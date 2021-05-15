@@ -29,7 +29,7 @@ describe('Registry Attributes', ()=>{
 
     test('Check if 1 url gets parsed the the correct object', ()=>{
         const {files} = new Attributes(['https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/core.js']);
-        jqMock.name = 'cdnjscloudflarecomajaxlibsjquerycore';
+        jqMock.name = '//cdnjscloudflarecom/ajax/libs/jquery//core';
         expect(files[0]).toEqual({...jqMock, type:'js'});
     });
 
@@ -84,7 +84,7 @@ describe('Registry Attributes', ()=>{
     test('Check if name is provided, take the url', ()=>{
         const {files} = new Attributes(['./myjquery.js@3.4.2.85']);
         expect(files[0]).toMatchObject({
-            name: 'myjquery',
+            name: '/myjquery',
             type: 'js',
             url: './myjquery.js',
             version: new VersionNumber('3.4.2.85')
@@ -110,7 +110,7 @@ describe('Registry Attributes', ()=>{
         const {files} = new Attributes(['https://cdnjs.cloudflare.com/ajax/libs/jquery/core.js']);
         expect(files[0]).toMatchObject({
             "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery/core.js",
-            "name": "cdnjscloudflarecomajaxlibsjquerycore",
+            "name": "//cdnjscloudflarecom/ajax/libs/jquery/core",
             "type": "js"
         });
     });
@@ -127,12 +127,7 @@ describe('Registry Attributes', ()=>{
 
     test('Check if incorrect versions are not interpreted', ()=>{
         const {files} = new Attributes(['myjquery.js@^yeeeezzz']);
-        expect(files[0]).toMatchObject({
-            name: 'myjquery',
-            type: 'js',
-            url: 'myjquery.js',
-            version: new VersionNumber('^yeeeezzz')
-        });
+        expect(files[0]).toMatchSnapshot();
     });
 
 
