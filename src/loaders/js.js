@@ -21,6 +21,14 @@ export default function(url, version, versiontype){
     script.src = url;
     script.version = version;
     script.versiontype = versiontype;
+
+    if (script.src !== url) {
+        const jsVersionUrls = version.filetypes['js']?.urls;
+        const urlIndex = jsVersionUrls?.indexOf(url);
+
+        jsVersionUrls?.splice(urlIndex, 1, script.src);
+    }
+
     document.head.appendChild(script);
     return currentTagLoad.waitForDefine(script);
 };
