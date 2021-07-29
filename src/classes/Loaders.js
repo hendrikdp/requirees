@@ -100,14 +100,14 @@ export default class{
             }else if(versiontype.dfr instanceof Promise) {
                 return versiontype.dfr;
             }else{
-                return versiontype.dfr = new Promise(resolve => {
+                return versiontype.dfr = new Promise((resolve, reject) => {
                     if(versiontype.factory){
                         this._resolveFactoryDependencies(resolve, version, type);
                     }else{
                         this._loadFromUrl(version, type).then(factory => {
                             versiontype.factory = factory;
                             this._resolveFactoryDependencies(resolve, version, type)
-                        });
+                        }).catch(reject);
                     }
                 }).then(
                     instance => {

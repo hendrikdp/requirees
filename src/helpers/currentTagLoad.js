@@ -1,5 +1,8 @@
 const waitForDefine = function(tag){
-    return new Promise(res => tag.confirmDefine=res);
+    return new Promise((resolve, reject) => {
+        tag.confirmDefine=resolve;
+        tag.rejectDefine=reject;
+    });
 };
 
 function confirmDefine({factory, dependencies}){
@@ -33,8 +36,12 @@ function _getCurrentTag(){
     }
 }
 
-function cancelDefine(tag){
-    if(typeof tag.confirmDefine === 'function') tag.confirmDefine(tag);
+function cancelDefine(tag, err){
+    if(err){
+        if(typeof tag.rejectDefine === 'function') tag.rejectDefine();
+    }else{
+        if(typeof tag.confirmDefine === 'function') tag.confirmDefine(tag);
+    }
 }
 
 export default {waitForDefine, confirmDefine, cancelDefine, getCurrentVersion};
