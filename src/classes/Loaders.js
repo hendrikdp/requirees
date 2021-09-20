@@ -157,11 +157,22 @@ export default class{
             //just serve the factory data as is to the module (for instance text)
             factoryResult = versiontype.factory;
         }
+        if(typeof versiontype.exportsPreFactoryRun !== 'undefined') versiontype.exports = versiontype.exportsPreFactoryRun;
         if(typeof versiontype.exports === 'undefined'){
             if(typeof versiontype.postFactory === 'function') factoryResult = versiontype.postFactory(factoryResult);
             versiontype.exports = factoryResult;
         }
         resolve(versiontype.exports);
+    }
+
+    _getDownloadUrl(configuredUrl){
+        const baseUrl = this._getBaseUrl();
+        const applyBaseUrl = baseUrl && !constants.reIsAbsoluteUrl.test(configuredUrl);
+        return applyBaseUrl ? (new URL(configuredUrl, baseUrl)).href : configuredUrl;
+    }
+
+    _getBaseUrl(){
+        return this.requireContext?.options?.baseUrl;
     }
 
     _loadFromUrl(version, type, index=0){
@@ -170,9 +181,10 @@ export default class{
             const file = version.filetypes[type];
             const urls = file.urls;
             if(index < urls.length){
+                const url = this._getDownloadUrl(urls[index]);
                 try{
                     return this._waitForPreLoadDependencies(file)
-                        .then(()=>loader(urls[index], version, file));
+                        .then(()=>loader(url, version, file));
                 }catch(e){
                     return this._loadFromUrl(version, type,index+1);
                 }

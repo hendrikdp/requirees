@@ -31,8 +31,8 @@ export default class {
     }
 
     exportsHandler(mdl){
-        if(typeof mdl.exports === 'undefined') mdl.exports = {};
-        return mdl.exports;
+        if(typeof mdl.exportsPreFactoryRun === 'undefined') mdl.exportsPreFactoryRun = {};
+        return mdl.exportsPreFactoryRun;
     }
 
     requireHandler(mdl){

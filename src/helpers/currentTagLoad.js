@@ -1,3 +1,5 @@
+import {constants} from "../require-global.js";
+
 const waitForDefine = function(tag){
     return new Promise((resolve, reject) => {
         tag.confirmDefine=resolve;
@@ -19,7 +21,19 @@ function confirmDefine({factory, dependencies}){
 
 function _isWaitingForDefineConfirmation(currentTag){
     return typeof currentTag.confirmDefine === 'function' &&
-        currentTag.versiontype?.urls?.indexOf?.(currentTag.src) > -1;
+        _doesCurrentTagMatchesCurrentDefine(currentTag);
+}
+
+function _doesCurrentTagMatchesCurrentDefine(currentTag){
+    const currentSource = currentTag.src;
+    const urls = currentTag.versiontype?.urls;
+    if(urls instanceof Array){
+        for(let i=0; i < urls.length; i++){
+            const url = urls[i].replace(constants.reRelativePath, '');
+            if(currentSource.indexOf(url)>-1) return true;
+        }
+    }
+    return false;
 }
 
 function getCurrentVersion() {

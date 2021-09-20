@@ -1,3 +1,5 @@
+console.log('NEW REQUIRE_ES supports basePath');
+
 import {getDefinitionArguments, getRequireArguments} from "./helpers/arguments.js";
 import currentTagLoad from './helpers/currentTagLoad.js';
 import Registry from './classes/Registry.js';
@@ -31,9 +33,9 @@ export default class{
         return resultNamedDefine || resultAnonymousDefine;
     }
 
-    _defineNamedModule(name, dependencies, factory){
+    _defineNamedModule(name, dependencies, factory, preventReregistration){
         const registryElement = {};
-        registryElement[name] = {dependencies, factory, url: false};
+        registryElement[name] = {dependencies, factory, url: false, preventReregistration};
         return this.register(registryElement);
     }
 
@@ -42,7 +44,7 @@ export default class{
         const result = currentTagLoad.confirmDefine({dependencies, factory});
         if(!result.success && result.currentTag instanceof HTMLElement){
             //if no package was confirmed, but a defined function was present... let's register it:
-            const registry = this._defineNamedModule(result.currentTag.src, dependencies, factory);
+            const registry = this._defineNamedModule(result.currentTag.src, dependencies, factory, true);
             if(!preventAutoInvoke && this.options.invokeNonMatchedDefines){
                 const attrs = new RegistryAttributes([result.currentTag.src]);
                 const pckgName = attrs.files?.[0]?.name;
@@ -87,11 +89,19 @@ export default class{
         return this.registry.findOne.apply(this.registry, arguments);
     }
 
+    _setBaseUrl(baseUrlParam){
+        const baseUrl = `${baseUrlParam}${baseUrlParam.endsWith('/') ? '' : '/'}`;
+        this.options.baseUrl = constants.reIsAbsoluteUrl.test(baseUrl) ?
+            baseUrl :
+            new URL(baseUrl, window.location.origin).href
+    }
+
     config(options = {}){
         if(typeof options.paths !== 'undefined') transformRJSPaths(options.paths).forEach(m => this.register(m));
         if(typeof options.allowRedefine !== 'undefined') this.options.allowRedefine = options.allowRedefine;
         if(typeof options.invokeNonMatchedDefines !== 'undefined') this.options.invokeNonMatchedDefines =  options.invokeNonMatchedDefines;
         if(typeof options.shim === 'object') this.shim(options.shim);
+        if(typeof options.baseUrl === 'string') this._setBaseUrl(options.baseUrl);
     }
 
     specified(packageName){

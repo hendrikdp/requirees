@@ -17,16 +17,22 @@ export default class{
         //loop through files and add to the packages one by one
         if(files instanceof Array){
             files.forEach(file =>{
-                this._publish(`${constants.events.ns}${constants.events.pre}${constants.events.register}`, {file});
-                if(!this.packages[file.name]){
-                    this.packages[file.name] = new Package(file, this);
+                if(this._allowRegister(file)){
+                    this._publish(`${constants.events.ns}${constants.events.pre}${constants.events.register}`, {file});
+                    if(!this.packages[file.name]){
+                        this.packages[file.name] = new Package(file, this);
+                    }
+                    this.packages[file.name].add(file);
+                    this._publish(`${constants.events.ns}${constants.events.register}`, {package: this.packages[file.name], file});
                 }
-                this.packages[file.name].add(file);
-                this._publish(`${constants.events.ns}${constants.events.register}`, {package: this.packages[file.name], file});
             });
         }
         this.sort(); //sort the packages to be easily searchable
         return this; //make chainable
+    }
+
+    _allowRegister(registrationFile){
+        return registrationFile.preventReregistration ? typeof this.packages[registrationFile.name] === 'undefined' : true;
     }
 
     _publish(evtName, data){

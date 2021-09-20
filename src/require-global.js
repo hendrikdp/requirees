@@ -1,5 +1,6 @@
 const root = typeof self !== 'undefined' ? self : global;
 const constants = {
+    reIsAbsoluteUrl: /^(https?:)?\/\//i,
     reProtocolAndHost: /^(https?:)?\/\/.+?\//i,
     reComments: /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
     reCjsRequireCalls: /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
@@ -8,6 +9,7 @@ const constants = {
     reFindVersionNumber: /\s*@?(([*<>^~]?\d+\.\d+(\.\d+)?(\.\d+)?(\-[\w\d]*)?(\-default)?)|default)\s*/,
     reVersionNumberAtEnd: /\s*@?(([*<>^~]?\d+\.\d+(\.\d+)?(\.\d+)?(\-[\w\d]*)?(\-default)?)|default)\s*$/,
     reToleranceCharacters: /^[\^~*]/,
+    reRelativePath: /\.\.?\//g,
     reVersionSplitters: /[.-]/,
     reUrlWithoutProtocolNorSpecialCharacters: /(https?:)|[\._:\?&=]/g,
     registryElementAttributeKeys: ['version', 'url', 'urls', 'name', 'sort', 'versions', 'type', 'factory', 'dependencies'],

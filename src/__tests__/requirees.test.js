@@ -389,3 +389,26 @@ describe('Test shim functionality', ()=>{
     });
 
 });
+
+describe('Test baseUrl', ()=>{
+    let requirees;
+    beforeEach(()=>{
+        requirees = new RequireEs().asFunction(false);
+    });
+
+    test('Check if absolute baseUrls are respected', ()=>{
+        requirees.config({
+            baseUrl: 'https://foo.bar/level1/level2/level3/'
+        });
+        expect(requirees.register().parent.options.baseUrl)
+            .toBe('https://foo.bar/level1/level2/level3/');
+    });
+
+    test('Check if relative baseUrls are respected', ()=>{
+        requirees.config({
+            baseUrl: './basePath/'
+        });
+        expect(requirees.register().parent.options.baseUrl)
+            .toBe('https://foo.bar/level1/level2/level3/');
+    })
+});
