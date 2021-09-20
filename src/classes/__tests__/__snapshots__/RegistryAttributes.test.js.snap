@@ -5,6 +5,7 @@ Object {
   "dependencies": undefined,
   "factory": undefined,
   "name": "myjqueryjs@^yeeeezzz",
+  "preventReregistration": undefined,
   "type": undefined,
   "url": "myjquery.js@^yeeeezzz",
   "version": VersionNumber {},

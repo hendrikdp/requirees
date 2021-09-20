@@ -409,6 +409,6 @@ describe('Test baseUrl', ()=>{
             baseUrl: './basePath/'
         });
         expect(requirees.register().parent.options.baseUrl)
-            .toBe('https://foo.bar/level1/level2/level3/');
+            .toBe('http://localhost/basePath/');
     })
 });
