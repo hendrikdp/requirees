@@ -1,5 +1,3 @@
-console.log('NEW REQUIRE_ES supports basePath');
-
 import {getDefinitionArguments, getRequireArguments} from "./helpers/arguments.js";
 import currentTagLoad from './helpers/currentTagLoad.js';
 import Registry from './classes/Registry.js';
