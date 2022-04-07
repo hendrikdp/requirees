@@ -6,13 +6,14 @@
 [Migration from RequireJs](#migrage)<br/>
 [Register a package](#register)<br/>
 [Require a package](#require)<br/>
+[Override amd dependencies](#overrideDependencies)<br/>
 [Define a package](#define)<br/>
 [RequireEs options](#options)<br/>
 [RequireEs events](#events)<br/>
 [WebPack / Rollup bundling for RequireEs](#webpack)<br/>
 [Custom elements support](#custom)
 
-<a name="intro"/>
+<a id="intro"/>
 
 ## A microfrontend module loader
 
@@ -38,7 +39,7 @@ The project will be structured in 3 parts:
     
 * create a webpack/rollup loader
 
-<a name="install"/>
+<a id="install"/>
 
 ## Installation
 Add the package to your project
@@ -57,7 +58,7 @@ Serve the file in node_modules/requirees/build/requirees.js in the header of you
 </html>
 ```
 
-<a name="migrate"/>
+<a id="migrate"/>
 
 ## Migration from RequireJs
 RequireEs allows a soft transition from RequireJs.
@@ -73,7 +74,7 @@ In a later version, require.config({shim}) will be supported as well.
 
 More info on RequireJs: https://requirejs.org/
 
-<a name="register"/>
+<a id="register"/>
 
 ## Register a package
 
@@ -146,7 +147,7 @@ require.register({
 });
 ```
 
-<a name="require"/>
+<a id="require"/>
 
 ## Require a package
 ### Usage
@@ -233,7 +234,96 @@ const bootstrap = await require('bootstrap@3.4.2');
 const bootstrap = await require('https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js')
 ```
 
-<a name="define"/>
+<a id="overrideDependencies" />
+
+## Override amd dependencies
+Require-es provides more flexibility on loading multiple versions of a given package. <br/>
+Unfortunately some amd/umd-packages include predefined dependencies. These can lead to unwanted / unexpected behavior.
+
+###Example: react-dom + react
+Let's take a look at the conflict below: react 16 + react 18
+```js
+require.register({
+    'react': [
+        'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js'
+    ],
+    'react-dom': [
+        'https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js'
+    ]
+});
+const ReactDom = await require('react-dom@^16.0.0');
+//react-dom     version 16.14.0 will download/initialize (it's the highest match within major 16)
+//react         version 18.0.0 will download/initialize...
+//this happens because react-dom has a dependency on 'react' baked into the module itself: define(['react'], factoryReactDom(React){})
+//see code-snippet below
+```
+Why did react 18.0.0 initialize, when react-dom 16.x is required?<br/>
+The answer can be found in the react-dom source-code itself:<br/>
+https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js
+```js
+...nction"===typeof define&&define.amd?define(["exports","react"],ea):(I=I||self,ea(I.ReactDOM={},...
+```
+Pay close attention to the dependencies set by the react-dom definition: define(["exports",**"react"**]). <br/>
+This instructs require-es to load **"react"** (without version number specified) before the "react-dom" factory runs. 
+If no "react" version is specified, the default version will be loaded (if no default is specified, the highest version becomes the default) 
+
+### Fix hardcoded amd-dependencies
+To avoid mixing up versions, require-es allows dependency overrides.
+
+This is done by providing the dependencyOverrides object while registering an amd module.
+
+Syntax
+```js
+require.register({
+  packageName: {
+    url: 'urlToDownloadTheAmdModule',
+    dependencyOverrides: {
+          dependencyName: 'newDependencyName(@version)'
+    }
+  }
+})
+```
+
+Example:
+```js
+require.register({
+    'react-dom': [
+        {
+            url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js',
+            dependencyOverrides: { react: 'react@18.0.0' }
+        },
+        {
+            url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js',
+            dependencyOverrides: { react: 'react@16.14.0' }
+        }
+    ],
+    'react': [
+        'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js'
+    ]
+});
+```
+This will override any hardcoded dependency on "react" to "react@18.0.0" (or "react@16.14.0") in both react-dom packages. <br/>
+The react-dom factory will now receive a matching react-version.
+
+Looking back at the react-dom source code:
+
+https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js
+```js
+...nction"===typeof define&&define.amd?define(["exports","react"],ea):(I=I||self,ea(I.ReactDOM={},...
+//will become
+...nction"===typeof define&&define.amd?define(["exports","react@16.14.0"],ea):(I=I||self,ea(I.ReactDOM={},...
+```
+https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js
+```js
+...nction"===typeof define&&define.amd?define(["exports","react"],eb):(M=M||self,eb(M.ReactDOM={},...
+//will become
+...nction"===typeof define&&define.amd?define(["exports","react@18.0.0"],eb):(M=M||self,eb(M.ReactDOM={},...
+```
+
+<a id="define"/>
 
 ## Define a package
 
@@ -301,7 +391,7 @@ define('react', reactFactoryFn);
 define('react@17.0.2', react1702FactoryFn);
 ```
 
-<a name="options"/>
+<a id="options"/>
 
 ## RequireEs options (coming soon)
 ```js
@@ -316,7 +406,7 @@ Key | Description
 allowRedefine | default: false;<br/>false: you cannot change the factory, for a given package (after it gets required for the first time)<br/>true: the factory can be changed at any time, next require will use the new factory
 invokeNonMatchedDefines | default: false; <br/>automatically invoke anonymous defines which could not be matched to any package in the RequireEs register.
 
-<a name="events"/>
+<a id="events"/>
 
 ## RequireEs events
 
@@ -364,7 +454,7 @@ requirees.subscribe('hendrik.sayHello', data => {
 requirees.publish('hendrik.sayHello', {foo: 'bar'});
 ```
 
-<a name="webpack"/>
+<a id="webpack"/>
 
 ## WebPack / Rollup bundling for RequireEs
 
@@ -506,6 +596,6 @@ export default {
 };
 ```
 
-<a name="custom"/>
+<a id="custom"/>
 
 ## Custom elements support (coming soon)

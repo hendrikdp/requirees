@@ -104,10 +104,20 @@ export default class{
         options.type = options.type || RegistryAttributes.guessType(options.url) || 'js';
         if(typeof this.filetypes[options.type] !== 'object') this.filetypes[options.type] = {urls:[]};
         const fileToProcess = this.filetypes[options.type];
+        if(options.dependencyOverrides) this._addDependencyOverrides(fileToProcess, options.dependencyOverrides);
         if(typeof options.factory !== 'undefined') this._setFactory(options.factory, fileToProcess);
         if(options.dependencies instanceof Array) fileToProcess.dependencies = options.dependencies;
         if(typeof options.url === 'string' && fileToProcess.urls.indexOf(options.url)===-1) fileToProcess.urls.unshift(options.url);
         return fileToProcess;
+    }
+
+    //adds dependency overrides
+    //example reactdom, define(['react'], factoryReactDom(react){})
+    _addDependencyOverrides(file, overrides){
+        if(typeof overrides === 'object'){
+            if(typeof file.dependencyOverrides !== 'object') file.dependencyOverrides = {};
+            Object.assign(file.dependencyOverrides, overrides);
+        }
     }
 
     //sets the factory for a certain filetype (if allowed)

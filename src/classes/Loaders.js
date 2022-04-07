@@ -123,9 +123,23 @@ export default class{
         this.requireContext.events.publish(evt,data);
     }
 
+    _getDependencies(versiontype){
+        if(versiontype.dependencies instanceof Array){
+            if(typeof versiontype.dependencyOverrides === 'object'){
+                return versiontype.dependencies.map(
+                    dependency => versiontype.dependencyOverrides[dependency] || dependency
+                );
+            }else{
+                return versiontype.dependencies;
+            }
+        }else{
+            return [];
+        }
+    }
+
     _resolveFactoryDependencies(resolve, version, type){
         const versiontype = version.filetypes[type];
-        const dependencies = versiontype.dependencies instanceof Array ? versiontype.dependencies : [];
+        const dependencies = this._getDependencies(versiontype);
         const dependenciesExtra = versiontype.dependenciesExtra instanceof Array ? versiontype.dependenciesExtra : [];
         const dependenciesPreLoad = versiontype.dependenciesPreLoad instanceof Array ? versiontype.dependenciesPreLoad : [];
         const allDependencies = dependencies.concat(dependenciesExtra).concat(dependenciesPreLoad);

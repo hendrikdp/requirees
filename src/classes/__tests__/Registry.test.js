@@ -330,6 +330,19 @@ describe('Registry handling - Add multiple packages', ()=>{
         expect(result).toEqual(resultReactAndLodashMixed);
     });
 
+    test('Add dependency overrides', ()=>{
+        const reg = new Registry();
+        reg.add({
+            reactdom: {
+                url: "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js",
+                dependencyOverrides: { react: "react@18.0.0" }
+            },
+            react: "https://cdnjs.cloudflare.com/ajax/libs/react/18.0.0/umd/react.production.min.js"
+        });
+        const result = reg.toJson();
+        expect(result).toMatchSnapshot();
+    });
+
     test('Add an array of different input formats', ()=>{
         const reg = new Registry();
         reg.add([

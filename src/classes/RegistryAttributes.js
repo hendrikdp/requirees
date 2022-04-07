@@ -71,7 +71,17 @@ class RegistryAttributes{
 
     //each config object can have 1 or more versions and 1 or more urls
     _splitPackageConfigObjectIntoFiles(packageName, obj){
-        let {version, versions, url, urls, type, dependencies, factory, preventReregistration} = obj;
+        let {
+            version,
+            versions,
+            url,
+            urls,
+            type,
+            dependencies,
+            factory,
+            preventReregistration,
+            dependencyOverrides
+        } = obj;
         if(versions instanceof Array && versions.length > 0){
             versions.forEach(
                 singleVersion => this._splitPackageConfigObjectIntoFiles(packageName, {...obj, version: singleVersion, versions: null})
@@ -82,12 +92,12 @@ class RegistryAttributes{
                     singleUrl => this._splitPackageConfigObjectIntoFiles(packageName, {...obj, url: singleUrl, urls: null})
                 )
             }else{
-                this._addFile(packageName, url, version, type, dependencies, factory, preventReregistration);
+                this._addFile(packageName, url, version, type, dependencies, factory, preventReregistration, dependencyOverrides);
             }
         }
     }
 
-    _addFile(packageName, url, version, type, dependencies, factory, preventReregistration){
+    _addFile(packageName, url, version, type, dependencies, factory, preventReregistration, dependencyOverrides){
         if(packageName){
             //if there is no package-name, use the url without versionnumber
             if(typeof url === 'undefined') url = packageName.replace(constants.reVersionNumberAtEnd, '');
@@ -110,7 +120,8 @@ class RegistryAttributes{
                 type,
                 dependencies,
                 factory,
-                preventReregistration
+                preventReregistration,
+                dependencyOverrides
             });
         }
     }

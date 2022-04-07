@@ -9,6 +9,22 @@
     <script>
         //register some react versions
         require.register({react: {versions: ['0.14.9', '15.6.2', '15.6.1', '15.3.1'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'}});
+        require.register({
+            'react-dom': [
+                {
+                    url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js',
+                    dependencyOverrides: { react: 'react@18.0.0' }
+                },
+                {
+                    url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js',
+                    dependencyOverrides: { react: 'react@16.14.0' }
+                }
+            ],
+            'react': [
+                'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js'
+            ]
+        });
         require.register({jquery: {versions: ['3.1.0','3.5.0', '3.4.1'], url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/${version}/jquery.min.js'}});
         require.register({'jquery@3.2.0-default': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/jquery.min.js'});
         define("mypackage.js", ["react@^0.0.0", "jquery@3.4.1"], function(react, jq, j){console.log('Run the factory of my package', react.version, jq.fn.jquery, j)});
@@ -16,7 +32,6 @@
         require.register({"hello-world": {url: "tag!src/samples/helloWorld.js"}});
         require.register({'bootstrap': {url: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css'}});
         require.register({"thispage.html": {url: "http://127.0.0.1:4000"}});
-
         define("my-component.html@0.0.0-default", [], "<section><h1>this is a test</h1></section>");
         define("my-component.css@0.0.0-default", [], "h1{color:#ccc}");
         define("my-component.tag@0.0.0-default", [], class MyComponent extends HTMLElement{
