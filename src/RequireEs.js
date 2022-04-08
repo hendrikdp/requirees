@@ -54,6 +54,7 @@ export default class{
 
     get(){
         const {dependencies, callback, callbackFail, loadSinglePackage, options} = getRequireArguments(arguments);
+        const failFn = typeof callbackFail === 'function' ? callbackFail : (err => console.error(err));
         const targetInstances = dependencies.map(target => {
             let results = this.findOne(target);
             if(typeof results.match === 'undefined'){
@@ -66,7 +67,7 @@ export default class{
         if(typeof callback === 'function'){
             allScriptsLoaded
                 .then(instances => callback.apply(root, instances))
-                .catch(err => callbackFail.apply(root, err));
+                .catch(err => failFn.apply(root, err));
         }
         return loadSinglePackage ? targetInstances[0] : allScriptsLoaded;
     }
