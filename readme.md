@@ -434,6 +434,10 @@ requirees.register | when a package was added to the registry
 requirees.pre-file-load | before an actual file/factory load is happening
 requirees.file-load | when a file/factory load has completed
 requirees.wiretaps | on all events
+requirees.scripttag.preadd | triggers before requirees appends a script-tag to the dom
+requirees.scripttag.added | tiggers after requirees appended a script-tag to the dom
+requirees.styletag.preadd | triggers before requirees appends a script-tag to the dom
+requirees.styletag.added | tiggers after requirees appended a style-tag to the dom
 
 ### Samples
 ```js

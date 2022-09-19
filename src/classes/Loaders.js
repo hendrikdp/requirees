@@ -198,7 +198,7 @@ export default class{
                 const url = this._getDownloadUrl(urls[index]);
                 try{
                     return this._waitForPreLoadDependencies(file)
-                        .then(()=>loader(url, version, file));
+                        .then(()=>loader(url, version, file, this.requireContext));
                 }catch(e){
                     return this._loadFromUrl(version, type,index+1);
                 }

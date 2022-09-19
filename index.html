@@ -80,8 +80,17 @@
         };
         test();
 */
+
+        require.on('requirees.scripttag.preadd', scriptElement => {
+            console.log('preadded script', scriptElement);
+            scriptElement.crossOrigin='anonymous';
+        });
+
         require(['bootstrap'], bootstrap => console.log('bootstrap', bootstrap));
         require('hello-world');
+
+
+
     </script>
     <hello-world></hello-world>
     <my-component></my-component>
