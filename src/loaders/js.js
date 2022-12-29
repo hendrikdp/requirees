@@ -5,7 +5,7 @@ function onScriptLoad(script, err){
     currentTagLoad.cancelDefine(script, err);
 }
 
-export default function(url, version, versiontype){
+export default function(url, version, versiontype, requireContext){
     const script = document.createElement('script');
     script.charset = 'utf-8';
     script.async = true;
@@ -21,6 +21,9 @@ export default function(url, version, versiontype){
         jsVersionUrls?.splice(urlIndex, 1, script.src);
     }
 
+    if(requireContext) requireContext.events.publish('requirees.scripttag.preadd', script);
     document.head.appendChild(script);
+    if(requireContext) requireContext.events.publish('requirees.scripttag.added', script);
+
     return currentTagLoad.waitForDefine(script);
 };

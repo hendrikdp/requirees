@@ -3,6 +3,7 @@
 exports[`Registry Attributes Check if incorrect versions are not interpreted 1`] = `
 Object {
   "dependencies": undefined,
+  "dependencyOverrides": undefined,
   "factory": undefined,
   "name": "myjqueryjs@^yeeeezzz",
   "preventReregistration": undefined,

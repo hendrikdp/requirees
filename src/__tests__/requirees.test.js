@@ -412,3 +412,24 @@ describe('Test baseUrl', ()=>{
             .toBe('http://localhost/basePath/');
     })
 });
+
+describe('Test undef of packages', ()=>{
+
+    let requirees;
+    beforeEach(()=>{
+        requirees = new RequireEs();
+        requirees.define('foobarDefine', () => ({
+            foo: 'define',
+            version: '0.0.0'
+        }))
+    });
+
+    test('Undefine a package', async ()=>{
+        const fooDefine = await requirees.get('foobarDefine');
+        expect(fooDefine.foo).toBe('define');
+        requirees.undef('foobarDefine')
+        const findFooDefine = await requirees.findOne('foobarDefine');
+        expect(findFooDefine.match.filetypes).toEqual({});
+    });
+
+});

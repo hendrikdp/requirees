@@ -9,6 +9,22 @@
     <script>
         //register some react versions
         require.register({react: {versions: ['0.14.9', '15.6.2', '15.6.1', '15.3.1'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'}});
+        require.register({
+            'react-dom': [
+                {
+                    url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js',
+                    dependencyOverrides: { react: 'react@18.0.0' }
+                },
+                {
+                    url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.14.0/umd/react-dom.production.min.js',
+                    dependencyOverrides: { react: 'react@16.14.0' }
+                }
+            ],
+            'react': [
+                'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js'
+            ]
+        });
         require.register({jquery: {versions: ['3.1.0','3.5.0', '3.4.1'], url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/${version}/jquery.min.js'}});
         require.register({'jquery@3.2.0-default': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/jquery.min.js'});
         define("mypackage.js", ["react@^0.0.0", "jquery@3.4.1"], function(react, jq, j){console.log('Run the factory of my package', react.version, jq.fn.jquery, j)});
@@ -16,7 +32,6 @@
         require.register({"hello-world": {url: "tag!src/samples/helloWorld.js"}});
         require.register({'bootstrap': {url: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css'}});
         require.register({"thispage.html": {url: "http://127.0.0.1:4000"}});
-
         define("my-component.html@0.0.0-default", [], "<section><h1>this is a test</h1></section>");
         define("my-component.css@0.0.0-default", [], "h1{color:#ccc}");
         define("my-component.tag@0.0.0-default", [], class MyComponent extends HTMLElement{
@@ -34,6 +49,7 @@
                  */
             }
         });
+
         define("my-component.js@0.0.0-default", ['react'], async function(r){
             return {
                 react: r,
@@ -41,7 +57,6 @@
                 html: await this.loadFileType('html')
             }
         });
-
 
         define("my-component.html@2.5.0", [], "<section><h1>this is version 2</h1></section>");
         define("my-component.css@2.5.0", [], "h1{color:#f00}");
@@ -65,8 +80,41 @@
         };
         test();
 */
+
+        require.on('requirees.scripttag.preadd', scriptElement => {
+            console.log('preadded script', scriptElement);
+            scriptElement.crossOrigin='anonymous';
+        });
+
         require(['bootstrap'], bootstrap => console.log('bootstrap', bootstrap));
         require('hello-world');
+
+        //at this moment three is not available yet... But it might be defined/registered later on
+        require.when('three').then(three => console.log('three is now registered and initialized', three));
+
+        //registering three after 5 seconds
+        //by default requirees would try to download './three.js'...
+        //by using 'when' the download will be postponed until the package explicitly gets registered
+        setTimeout(
+            () => require.register({three: "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"}),
+            5000
+        );
+
+        //require multiple packages
+        require.when(['three@^0.100.0', 'myAppUtilities']).then(
+            (three, myAppUtilities) => console.log('Both app-utilities and three are now available for usage', three, myAppUtilities)
+        );
+
+        //myAppUtilities is not known yet at this point in time... blocking the promise resolve above
+        setTimeout(
+            () => define('myAppUtilities', function(){
+                return {
+                    stringUtils: {}
+                }
+            }),
+            6000
+        );
+
     </script>
     <hello-world></hello-world>
     <my-component></my-component>

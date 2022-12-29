@@ -66,7 +66,7 @@ export default class{
     //load dependencies or define exports
     shim(filetype, shimConfig) {
         if(typeof shimConfig !== 'object') return;
-        const file = this._getFile(filetype);
+        const file = this.getFile(filetype);
         if(file){
             if(shimConfig.deps instanceof Array) this._addDependencies(file, shimConfig.deps, 'PreLoad');
             if(typeof shimConfig.exports === 'string') file.postFactory = () => root[shimConfig.exports];
@@ -77,12 +77,12 @@ export default class{
     //add dependencies
     addDependencies(filetype, config, preload){
         if(typeof config !== 'object') return;
-        const file = this._getFile(filetype);
+        const file = this.getFile(filetype);
         this._addDependencies(file, config, preload ? 'PreLoad' : 'Extra');
     }
 
     //returns the filetype definition within this version
-    _getFile(filetype){
+    getFile(filetype){
         let sFiletype = filetype?.type || filetype;
         if(typeof sFiletype !== 'string') sFiletype = 'js';
         return this.filetypes[sFiletype];
@@ -104,10 +104,20 @@ export default class{
         options.type = options.type || RegistryAttributes.guessType(options.url) || 'js';
         if(typeof this.filetypes[options.type] !== 'object') this.filetypes[options.type] = {urls:[]};
         const fileToProcess = this.filetypes[options.type];
+        if(options.dependencyOverrides) this._addDependencyOverrides(fileToProcess, options.dependencyOverrides);
         if(typeof options.factory !== 'undefined') this._setFactory(options.factory, fileToProcess);
         if(options.dependencies instanceof Array) fileToProcess.dependencies = options.dependencies;
         if(typeof options.url === 'string' && fileToProcess.urls.indexOf(options.url)===-1) fileToProcess.urls.unshift(options.url);
         return fileToProcess;
+    }
+
+    //adds dependency overrides
+    //example reactdom, define(['react'], factoryReactDom(react){})
+    _addDependencyOverrides(file, overrides){
+        if(typeof overrides === 'object'){
+            if(typeof file.dependencyOverrides !== 'object') file.dependencyOverrides = {};
+            Object.assign(file.dependencyOverrides, overrides);
+        }
     }
 
     //sets the factory for a certain filetype (if allowed)
