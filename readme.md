@@ -157,7 +157,7 @@ const packageInstance = await require('packageName(@)(^)(~)(*)(version)(.filetyp
 //mulitple packages
 const [pckg1, packg2] = await require([
     'pckg1(@)(^)(~)(*)(version)(.filetype)',
-    'pckg1(@)(^)(~)(*)(version)(.filetype)'
+    'pckg2(@)(^)(~)(*)(version)(.filetype)'
 ]);
 
 //cjs style (only works when a package is already loaded once, or in a defined factory)
@@ -168,7 +168,7 @@ requirees('packageName(@)(^)(~)(*)(version)(.filetype)').then(packageInstance);
 //multiple packages
 requirees([
     'pckg1(@)(^)(~)(*)(version)(.filetype)',
-    'pckg1(@)(^)(~)(*)(version)(.filetype)'
+    'pckg2(@)(^)(~)(*)(version)(.filetype)'
 ]).then(
     ([pckg1, pckg2]) => {}
  );
@@ -178,7 +178,7 @@ require(['packageName(@)(^)(~)(*)(version)(.filetype)'], package => {});
 //multiple packages
 require([
     'pckg1(@)(^)(~)(*)(version)(.filetype)',
-    'pckg1(@)(^)(~)(*)(version)(.filetype)'
+    'pckg2(@)(^)(~)(*)(version)(.filetype)'
 ], (pckg1, pckg2) => {});
 
 //without registration
@@ -323,6 +323,55 @@ https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production
 ...nction"===typeof define&&define.amd?define(["exports","react@18.0.0"],eb):(M=M||self,eb(M.ReactDOM={},...
 ```
 
+<a id="requireWhen" />
+
+## Require.when() - only return explicitly defined/registered packages
+By default requirees will **always** try to download a package, even when no registration/definition is available.
+
+Example 
+```js
+require('myUnkownPackage')
+//tries to download './myUnkownPackage.js'. 
+```
+Require.when() ensures the requested package are explicitly defined/registered! 
+If the requested package is not defined/registered yet, require.when will wait for an explicit define/register.
+
+### Usage
+```js
+//wait for a single package to get defined/registered
+require.when('packageName(@)(^)(~)(*)(version)(.filetype)').then(packageInstance => {});
+//wait for multiple packages to get defined/registered
+require.when([
+  'pckg1(@)(^)(~)(*)(version)(.filetype)',
+  'pckg2(@)(^)(~)(*)(version)(.filetype)'
+]).then((pckg1, pckg2) => {});
+//using callbacks instead of promises
+require.when('packageName(@)(^)(~)(*)(version)(.filetype)', callback, failCallback)
+```
+### Samples
+```js
+require.when('myUnkownPackage')
+        .then(p => console.log('my unknown package is defined now', p))
+//waits until someone explicitly defines the package
+//the promise above will resolve with the 'myUnknownPackage'-exports after 5 seconds
+setTimeout(
+    () => define('myUnkownPackage', () => exports),
+    5000
+);
+```
+```js
+require.when('three@^0.100.0')
+        .then(three => console.log('three is registered and usable now', three))
+//waits until someone explicitly registers the package
+//
+setTimeout(
+    () => require.register({
+        three: "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"
+    }),
+    5000
+);
+```
+
 <a id="define"/>
 
 ## Define a package
@@ -393,7 +442,7 @@ define('react@17.0.2', react1702FactoryFn);
 
 <a id="options"/>
 
-## RequireEs options (coming soon)
+## RequireEs options
 ```js
 require.config({
     allowRedefine: false,

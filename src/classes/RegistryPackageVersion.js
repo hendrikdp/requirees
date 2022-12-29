@@ -66,7 +66,7 @@ export default class{
     //load dependencies or define exports
     shim(filetype, shimConfig) {
         if(typeof shimConfig !== 'object') return;
-        const file = this._getFile(filetype);
+        const file = this.getFile(filetype);
         if(file){
             if(shimConfig.deps instanceof Array) this._addDependencies(file, shimConfig.deps, 'PreLoad');
             if(typeof shimConfig.exports === 'string') file.postFactory = () => root[shimConfig.exports];
@@ -77,12 +77,12 @@ export default class{
     //add dependencies
     addDependencies(filetype, config, preload){
         if(typeof config !== 'object') return;
-        const file = this._getFile(filetype);
+        const file = this.getFile(filetype);
         this._addDependencies(file, config, preload ? 'PreLoad' : 'Extra');
     }
 
     //returns the filetype definition within this version
-    _getFile(filetype){
+    getFile(filetype){
         let sFiletype = filetype?.type || filetype;
         if(typeof sFiletype !== 'string') sFiletype = 'js';
         return this.filetypes[sFiletype];

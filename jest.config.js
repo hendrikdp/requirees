@@ -13,6 +13,7 @@ module.exports = {
     coverageReporters: [ `lcov`, `text`, `clover` ],
     collectCoverageFrom: [
         `src/**/*.js`,
+        `!src/samples/*.js`,
     ],
     setupFilesAfterEnv: [ `<rootDir>/jest-setup` ],
 };

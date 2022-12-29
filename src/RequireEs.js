@@ -6,6 +6,7 @@ import Loaders from './classes/Loaders.js';
 import Events from './classes/Events.js';
 import {root, constants} from "./require-global";
 import {transformRJSPaths} from './helpers/requireJsTransformers.js';
+import WaitForRegistrationQueue from "./classes/WaitForRegistrationQueue";
 
 export default class{
 
@@ -13,6 +14,7 @@ export default class{
         this.events = new Events();
         this.registry = new Registry(options, this);
         this.loaders = new Loaders(this);
+        this.waitForRegistrationQueue = new WaitForRegistrationQueue(this);
         this.options = options || {};
         this.amd = {};
     }
@@ -21,7 +23,7 @@ export default class{
         const args = getDefinitionArguments(arguments);
         const {name, dependencies, factory} = args;
         this.events.publish(`${constants.events.ns}${constants.events.pre}${constants.events.define}`, {args});
-        //Carefull with jQuery: In general, explicitly naming modules in the define() call are discouraged, but jQuery has some special constraints.
+        //Careful with jQuery: In general, explicitly naming modules in the define() call are discouraged, but jQuery has some special constraints.
         const isNamed = typeof name === 'string' && !(name==='jquery' && typeof factory === 'undefined');
         //the module can be both be named AND registered.... In that case, register both!
         //try to defined the anonymous way (do not auto-invoke named modules, only the anonymous ones)
@@ -37,13 +39,13 @@ export default class{
         return this.register(registryElement);
     }
 
-    _defineAnonymousModule(dependencies, factory, preventAutoInvoke){
+    _defineAnonymousModule(dependencies, factory, fromNamedModule){
         //if this is an anonymous define, confirm the currently loading script that loading is done...
         const result = currentTagLoad.confirmDefine({dependencies, factory});
-        if(!result.success && result.currentTag instanceof HTMLElement){
-            //if no package was confirmed, but a defined function was present... let's register it:
+        if(!result.success && result.currentTag instanceof HTMLElement && !fromNamedModule){
+            //if no package was confirmed, but a define function was present... let's register it:
             const registry = this._defineNamedModule(result.currentTag.src, dependencies, factory, true);
-            if(!preventAutoInvoke && this.options.invokeNonMatchedDefines){
+            if(this.options.invokeNonMatchedDefines){
                 const attrs = new RegistryAttributes([result.currentTag.src]);
                 const pckgName = attrs.files?.[0]?.name;
                 if(pckgName) this.get(pckgName);
@@ -55,9 +57,19 @@ export default class{
     get(){
         const {dependencies, callback, callbackFail, loadSinglePackage, options} = getRequireArguments(arguments);
         const failFn = typeof callbackFail === 'function' ? callbackFail : (err => console.error(err));
+        const queueIfNotRegistered = options && options.queueIfNotRegistered;
         const targetInstances = dependencies.map(target => {
             let results = this.findOne(target);
-            if(typeof results.match === 'undefined'){
+            if(queueIfNotRegistered && (typeof results.match === 'undefined' ||  results.match === null)){
+                //wait until the package is not find gets registered (or defined)
+                return this.waitForRegistrationQueue.queue(
+                    target,
+                    results.attrs,
+                    {...options, queueIfNotRegistered: false}
+                );
+            }
+            if(!queueIfNotRegistered && typeof results.match === 'undefined'){
+                //package is not registered yet... define it, and afterwards download it
                 this.register(target, options);
                 results = this.findOne(target);
             }
@@ -86,6 +98,11 @@ export default class{
 
     findOne(){
         return this.registry.findOne.apply(this.registry, arguments);
+    }
+
+    when(){
+        const args = [...arguments, {queueIfNotRegistered: true}];
+        return this.get.apply(this, args);
     }
 
     _setBaseUrl(baseUrlParam){
@@ -135,6 +152,7 @@ export default class{
     asFunction(usePromises){
         const requirees = usePromises ? this.getPromise.bind(this) : this.get.bind(this);
         requirees.register = this.register.bind(this);
+        requirees.when = this.when.bind(this);
         requirees.find = this.find.bind(this);
         requirees.findOne = this.findOne.bind(this);
         requirees.loaders = this.loaders;
@@ -149,6 +167,7 @@ export default class{
         requirees.publish = this.events.publish.bind(this.events);
         requirees.addWireTap = this.events.addWireTap.bind(this.events);
         requirees.events = this.events;
+        requirees.version = "__buildnumber__";
         return requirees;
     }
 

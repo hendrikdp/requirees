@@ -49,6 +49,7 @@
                  */
             }
         });
+
         define("my-component.js@0.0.0-default", ['react'], async function(r){
             return {
                 react: r,
@@ -56,7 +57,6 @@
                 html: await this.loadFileType('html')
             }
         });
-
 
         define("my-component.html@2.5.0", [], "<section><h1>this is version 2</h1></section>");
         define("my-component.css@2.5.0", [], "h1{color:#f00}");
@@ -89,7 +89,31 @@
         require(['bootstrap'], bootstrap => console.log('bootstrap', bootstrap));
         require('hello-world');
 
+        //at this moment three is not available yet... But it might be defined/registered later on
+        require.when('three').then(three => console.log('three is now registered and initialized', three));
 
+        //registering three after 5 seconds
+        //by default requirees would try to download './three.js'...
+        //by using 'when' the download will be postponed until the package explicitly gets registered
+        setTimeout(
+            () => require.register({three: "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"}),
+            5000
+        );
+
+        //require multiple packages
+        require.when(['three@^0.100.0', 'myAppUtilities']).then(
+            (three, myAppUtilities) => console.log('Both app-utilities and three are now available for usage', three, myAppUtilities)
+        );
+
+        //myAppUtilities is not known yet at this point in time... blocking the promise resolve above
+        setTimeout(
+            () => define('myAppUtilities', function(){
+                return {
+                    stringUtils: {}
+                }
+            }),
+            6000
+        );
 
     </script>
     <hello-world></hello-world>
