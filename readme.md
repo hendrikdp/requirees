@@ -7,6 +7,7 @@
 [Register a package](#register)<br/>
 [Require a package](#require)<br/>
 [Override amd dependencies](#overrideDependencies)<br/>
+[Require.when - ONLY load after explicit define/register](#requireWhen)<br/>
 [Define a package](#define)<br/>
 [RequireEs options](#options)<br/>
 [RequireEs events](#events)<br/>
