@@ -1,4 +1,5 @@
-import {root, constants} from '../require-global';
+import {root, constants} from '../require-global.js';
+import {convertRelativeUrls} from "./urls.js";
 
 //handle the amd define arguments
 function getDefinitionArguments(args){
@@ -8,7 +9,7 @@ function getDefinitionArguments(args){
         if(typeof arg==='string' && !defineArguments.name){
             defineArguments.name = arg;
         }else if(arg instanceof Array && !defineArguments.dependencies){
-            defineArguments.dependencies = convertRelativeUrls(arg);
+            defineArguments.dependencies = convertRelativeUrls(arg, defineArguments.name);
         }else{
             defineArguments.factory = arg;
         }
@@ -20,37 +21,6 @@ function getDefinitionArguments(args){
     }
     //expose defined module
     return defineArguments
-}
-
-//convert relative urls (./ ../)
-function convertRelativeUrls(urls){
-    return urls.map(url => url.charAt(0)==='.' ? normalizeRelativeUrl(url) : url);
-}
-
-//normalize the relative urls (only if a valid extention is provided), otherwise treat it as a package name (RequireJs)
-function normalizeRelativeUrl(url){
-    //todo: remove below with a dynamic list! (use loader registration)
-    const ALLOWED_EXTENTIONS = ['css', 'js', 'html', 'htm', 'json', 'tag', 'txt', 'wasm', 'xml'];
-    const urlFragments = url.match(constants.reExtension);
-    //remove the ./ if no allowed extension is provided
-    if(ALLOWED_EXTENTIONS.indexOf(urlFragments?.[1]) > -1){
-        const currentScriptUrl = getCurrentScriptLocation();
-        const absUrl = new URL(url, currentScriptUrl);
-        return absUrl.href;
-    }else{
-        return url.replace(/^\.\//, '');
-    }
-}
-
-//get the location of the current script
-function getCurrentScriptLocation(){
-    const baseUrl = document.currentScript?.src;
-    if(baseUrl) {
-        return baseUrl;
-    }else{
-        const scripts= document.getElementsByTagName('script');
-        return scripts[scripts.length-1]?.src;
-    }
 }
 
 //find all require() statements and push these as dependencies (to support cjs modules)

@@ -54,6 +54,7 @@ export default class{
 
     get(){
         const {dependencies, callback, callbackFail, loadSinglePackage, options} = getRequireArguments(arguments);
+        const failFn = typeof callbackFail === 'function' ? callbackFail : (err => console.error(err));
         const targetInstances = dependencies.map(target => {
             let results = this.findOne(target);
             if(typeof results.match === 'undefined'){
@@ -66,7 +67,7 @@ export default class{
         if(typeof callback === 'function'){
             allScriptsLoaded
                 .then(instances => callback.apply(root, instances))
-                .catch(err => callbackFail.apply(root, err));
+                .catch(err => failFn.apply(root, err));
         }
         return loadSinglePackage ? targetInstances[0] : allScriptsLoaded;
     }
@@ -94,12 +95,18 @@ export default class{
             new URL(baseUrl, window.location.origin).href
     }
 
+    _addPathSubstitutions(substitutions){
+        if(!this.options.pathSubstitution) this.options.pathSubstitution = {};
+        Object.assign(this.options.pathSubstitution, substitutions);
+    }
+
     config(options = {}){
         if(typeof options.paths !== 'undefined') transformRJSPaths(options.paths).forEach(m => this.register(m));
         if(typeof options.allowRedefine !== 'undefined') this.options.allowRedefine = options.allowRedefine;
         if(typeof options.invokeNonMatchedDefines !== 'undefined') this.options.invokeNonMatchedDefines =  options.invokeNonMatchedDefines;
         if(typeof options.shim === 'object') this.shim(options.shim);
         if(typeof options.baseUrl === 'string') this._setBaseUrl(options.baseUrl);
+        if(typeof options.pathSubstitution === object) this._addPathSubstitutions(options.pathSubstitution);
     }
 
     specified(packageName){
