@@ -1,5 +1,6 @@
 import ReservedDependencies from './ReservedDependenciesHandlers.js';
 import {constants} from "../require-global.js";
+import {pathSubstitution} from "../helpers/urls";
 
 import css from '../loaders/css.js';
 import txt from '../loaders/txt.js';
@@ -181,8 +182,14 @@ export default class{
 
     _getDownloadUrl(configuredUrl){
         const baseUrl = this._getBaseUrl();
-        const applyBaseUrl = baseUrl && !constants.reIsAbsoluteUrl.test(configuredUrl);
-        return applyBaseUrl ? (new URL(configuredUrl, baseUrl)).href : configuredUrl;
+        const pathSubstitutions = this._getPathSubstitutions();
+        const substitutedUrl = pathSubstitution(configuredUrl, pathSubstitutions);
+        const applyBaseUrl = baseUrl && !constants.reIsAbsoluteUrl.test(substitutedUrl);
+        return applyBaseUrl ? (new URL(substitutedUrl, baseUrl)).href : substitutedUrl;
+    }
+
+    _getPathSubstitutions(){
+        return this.requireContext?.options?.pathSubstitution
     }
 
     _getBaseUrl(){

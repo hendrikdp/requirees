@@ -123,7 +123,7 @@ export default class{
         if(typeof options.invokeNonMatchedDefines !== 'undefined') this.options.invokeNonMatchedDefines =  options.invokeNonMatchedDefines;
         if(typeof options.shim === 'object') this.shim(options.shim);
         if(typeof options.baseUrl === 'string') this._setBaseUrl(options.baseUrl);
-        if(typeof options.pathSubstitution === object) this._addPathSubstitutions(options.pathSubstitution);
+        if(typeof options.pathSubstitution === 'object') this._addPathSubstitutions(options.pathSubstitution);
     }
 
     specified(packageName){

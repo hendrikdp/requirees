@@ -62,4 +62,5 @@ export function pathSubstitution(path, substitutions){
             if(path.startsWith(keys[i])) return path.replace(keys[i], substitutions[keys[i]]);
         }
     }
+    return path;
 }
