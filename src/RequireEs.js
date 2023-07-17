@@ -102,7 +102,7 @@ export default class{
 
     when(){
         const args = [...arguments, {queueIfNotRegistered: true}];
-        return this.get.apply(this, args);
+        return this.getPromise.apply(this, args);
     }
 
     _setBaseUrl(baseUrlParam){
