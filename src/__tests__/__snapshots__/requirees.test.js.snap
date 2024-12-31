@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Test RequireJs registrations + registration while getting Automatic registration while getting package 1`] = `
-Object {
-  "//cdnjscloudflarecom/ajax/libs/react//umd/reactproductionmin": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
+{
+  "//cdnjscloudflarecom/ajax/libs/react//umd/reactproductionmin": [
+    {
+      "filetypes": {
+        "js": {
           "dfr": Promise {},
-          "urls": Array [
+          "urls": [
             "https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js",
           ],
         },
@@ -22,12 +22,12 @@ Object {
 `;
 
 exports[`Test scoped packages registration, and @-signs in urls Do interpret default as version indication 1`] = `
-Object {
-  "foo": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "foo": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://foo.bar@4.5.2/foo.js",
           ],
         },
@@ -42,12 +42,12 @@ Object {
 `;
 
 exports[`Test scoped packages registration, and @-signs in urls Ignore package scope... Its not a version number 1`] = `
-Object {
-  "@myscope/mypackage": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "@myscope/mypackage": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://www.tired.com/@4.5.2-rc1/foo.js",
           ],
         },
@@ -63,12 +63,12 @@ Object {
 `;
 
 exports[`Test scoped packages registration, and @-signs in urls No scope, nor version number, leave the @signs where they are 1`] = `
-Object {
-  "mypackage": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "mypackage": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://www.tired.com/@duffman/foo.js",
           ],
         },
@@ -82,12 +82,12 @@ Object {
 `;
 
 exports[`Test scoped packages registration, and @-signs in urls No version number provided, dont touch the scope 1`] = `
-Object {
-  "@myscope/mypackage": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "@myscope/mypackage": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://www.tired.com/foo.js",
           ],
         },
@@ -101,12 +101,12 @@ Object {
 `;
 
 exports[`Test scoped packages registration, and @-signs in urls No versionnumber is allowed when converting the url to a package-name 1`] = `
-Object {
-  "//wwwtiredcom/@duffman//foo": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "//wwwtiredcom/@duffman//foo": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://www.tired.com/@duffman/@4.20/foo.js",
           ],
         },
@@ -120,12 +120,12 @@ Object {
 `;
 
 exports[`Test scoped packages registration, and @-signs in urls Only respect @version-number to identify the version, ignore package scope 1`] = `
-Object {
-  "@myscope/mypackage": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "@myscope/mypackage": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://www.tired.com/@4.5.2-rc1/foo.js",
           ],
         },
@@ -141,31 +141,31 @@ Object {
 `;
 
 exports[`Test shim functionality check if dependencies an be added to different filetypes 1`] = `
-Object {
-  "dependenciesPreLoad": Array [
+{
+  "dependenciesPreLoad": [
     "dep1",
   ],
   "postFactory": [Function],
-  "urls": Array [],
+  "urls": [],
 }
 `;
 
 exports[`Test shim functionality check if shim exports can be a function 1`] = `
-Object {
+{
   "postFactory": [Function],
-  "urls": Array [],
+  "urls": [],
 }
 `;
 
 exports[`Test shim functionality check if shims are registered on unknown packages 1`] = `
-Object {
-  "js": Object {
-    "dependenciesPreLoad": Array [
+{
+  "js": {
+    "dependenciesPreLoad": [
       "dep1",
       "dep2",
     ],
     "postFactory": [Function],
-    "urls": Array [],
+    "urls": [],
   },
 }
 `;

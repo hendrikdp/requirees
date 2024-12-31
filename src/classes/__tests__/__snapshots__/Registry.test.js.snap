@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Registry handling - Add multiple packages Add dependency overrides 1`] = `
-Object {
-  "react": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "urls": Array [
+{
+  "react": [
+    {
+      "filetypes": {
+        "js": {
+          "urls": [
             "https://cdnjs.cloudflare.com/ajax/libs/react/18.0.0/umd/react.production.min.js",
           ],
         },
@@ -17,14 +17,14 @@ Object {
       "str": "18.0.0",
     },
   ],
-  "reactdom": Array [
-    Object {
-      "filetypes": Object {
-        "js": Object {
-          "dependencyOverrides": Object {
+  "reactdom": [
+    {
+      "filetypes": {
+        "js": {
+          "dependencyOverrides": {
             "react": "react@18.0.0",
           },
-          "urls": Array [
+          "urls": [
             "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.0.0/umd/react-dom.production.min.js",
           ],
         },
