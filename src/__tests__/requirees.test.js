@@ -433,3 +433,63 @@ describe('Test undef of packages', ()=>{
     });
 
 });
+
+describe('Test load-timeout when fetching packages', ()=>{
+
+    let requirees, factory;
+    beforeEach(()=>{
+        requirees = new RequireEs();
+        requirees.define('defineWithPromise', new Promise(
+            resolve => setTimeout(()=>{
+                resolve({moduleInstance: "OK"})
+            }, 750)
+        ));
+        requirees.define('defineWithoutPromise', ({moduleInstance: "OK"}));
+    });
+
+    test('If package is loaded to slow, an error should be thrown', ()=>{
+        const modulePromise = requirees.get('defineWithPromise', {loadTimeout:500});
+        expect(modulePromise).rejects.toThrow('RequireEs: 0.5s load-timeout has been reached for require');
+    });
+
+    test('If one of multiple packages loads to slow, an error should be thrown', ()=>{
+        const modulePromise = requirees.get(['defineWithPromise', 'defineWithoutPromise'], {loadTimeout:500});
+        expect(modulePromise).rejects.toThrow('RequireEs: 0.5s load-timeout has been reached for require');
+    });
+
+    test('If package is loaded, in time the instance is returned', async ()=>{
+        const moduleLoaded = await requirees.get('defineWithPromise', {loadTimeout: 1000});
+        expect(moduleLoaded.moduleInstance).toBe("OK");
+    });
+
+    test('If all packages load in time, no error should be thrown', async ()=>{
+        const modules = await requirees.get(['defineWithPromise', 'defineWithoutPromise'], {loadTimeout:1000});
+        expect(modules[0].moduleInstance).toBe("OK");
+        expect(modules[1].moduleInstance).toBe("OK");
+    });
+
+    test('When no load-timeout is added, everything should work as it was', async ()=>{
+        const moduleLoaded = await requirees.get('defineWithoutPromise');
+        expect(moduleLoaded.moduleInstance).toBe("OK");
+    });
+
+    test('When requirejs-syntax is used, the failFn should be called', async ()=>{
+        const okFn = jest.fn();
+        const failFn =  jest.fn();
+        try{
+            await requirees.get('defineWithPromise', okFn, failFn, {loadTimeout:500});
+        }catch{
+            expect(failFn).toBeCalled();
+        }
+    });
+
+    test('When requirejs-syntax is used, the okFn should be called if loaded in time', async ()=>{
+        const okFn = jest.fn();
+        const failFn =  jest.fn();
+        await requirees.get('defineWithPromise', okFn, failFn, {loadTimeout:1000});
+        //give time to the next tick... The "await" is processed just before the okFn makes it into the queue
+        await new Promise((resolve) => process.nextTick(resolve));
+        expect(okFn).toBeCalled();
+    });
+
+})

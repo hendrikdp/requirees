@@ -115,6 +115,15 @@
             6000
         );
 
+        //if a file takes to long to download, run the failfn method
+        const timeout = 40;
+        require(
+            "https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js",
+            {loadTimeout: timeout},
+            react => console.log(`Loaded react within ${timeout/1000}s`, react),
+            () => console.log(`Did not load react`)
+        )
+
     </script>
     <hello-world></hello-world>
     <my-component></my-component>

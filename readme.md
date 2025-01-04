@@ -235,13 +235,26 @@ const bootstrap = await require('bootstrap@3.4.2');
 const bootstrap = await require('https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js')
 ```
 
+### Require using option
+#### Syntax
+```js
+await require('packageName(@)(^)(~)(*)(version)(.filetype)', options);
+//or
+require('packageName(@)(^)(~)(*)(version)(.filetype)', successFn, failFn, options);
+```
+#### Options
+Option | Description
+--- | ---
+loadTimeout | timeout before a require-call should fail (in ms)
+
+
 <a id="overrideDependencies" />
 
 ## Override amd dependencies
 Require-es provides more flexibility on loading multiple versions of a given package. <br/>
 Unfortunately some amd/umd-packages include predefined dependencies. These can lead to unwanted / unexpected behavior.
 
-###Example: react-dom + react
+### Example: react-dom + react
 Let's take a look at the conflict below: react 16 + react 18
 ```js
 require.register({

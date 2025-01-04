@@ -54,9 +54,7 @@ export default class{
         }
     }
 
-    get(){
-        const {dependencies, callback, callbackFail, loadSinglePackage, options} = getRequireArguments(arguments);
-        const failFn = typeof callbackFail === 'function' ? callbackFail : (err => console.error(err));
+    loadAllModuleInstances(dependencies, options){
         const queueIfNotRegistered = options && options.queueIfNotRegistered;
         const targetInstances = dependencies.map(target => {
             let results = this.findOne(target);
@@ -75,13 +73,46 @@ export default class{
             }
             return this.loaders.load(results, options);
         });
-        const allScriptsLoaded = Promise.all(targetInstances);
+        return targetInstances;
+    }
+
+    rejectOnTimeout(promise, options){
+        const loadTimeout = options?.loadTimeout && Number(options.loadTimeout);
+        if(loadTimeout){
+            return Promise.race([
+                promise,
+                new Promise((_, reject) =>
+                    setTimeout(
+                        () => reject(
+                            new Error(`RequireEs: ${loadTimeout/1000}s load-timeout has been reached for require`)
+                        ),
+                        loadTimeout
+                    )
+                )
+            ])
+        }else{
+            return promise;
+        }
+    }
+
+    runCallbackAfterInstancesAreLoaded(instancesPromise, callback, failFn, options){
         if(typeof callback === 'function'){
-            allScriptsLoaded
+            this.rejectOnTimeout(instancesPromise, options)
                 .then(instances => callback.apply(root, instances))
                 .catch(err => failFn.apply(root, err));
         }
-        return loadSinglePackage ? targetInstances[0] : allScriptsLoaded;
+    }
+
+    get(){
+        const {dependencies, callback, callbackFail, loadSinglePackage, options} = getRequireArguments(arguments);
+        const failFn = typeof callbackFail === 'function' ? callbackFail : (err => console.error(err));
+        const targetInstances = this.loadAllModuleInstances(dependencies, options);
+        const targetInstancesPromise = Promise.all(targetInstances);
+        this.runCallbackAfterInstancesAreLoaded(targetInstancesPromise, callback, failFn, options);
+        return this.rejectOnTimeout(
+            loadSinglePackage ? targetInstances[0] : targetInstancesPromise,
+            options
+        );
     }
 
     getPromise(){
