@@ -21,14 +21,13 @@ export default class{
 
     define(){
         const args = getDefinitionArguments(arguments);
-        const {name, dependencies, factory} = args;
         this.events.publish(`${constants.events.ns}${constants.events.pre}${constants.events.define}`, {args});
         //Careful with jQuery: In general, explicitly naming modules in the define() call are discouraged, but jQuery has some special constraints.
-        const isNamed = typeof name === 'string' && !(name==='jquery' && typeof factory === 'undefined');
+        const isNamed = typeof args.name === 'string' && !(args.name==='jquery' && typeof args.factory === 'undefined');
         //the module can be both be named AND registered.... In that case, register both!
         //try to defined the anonymous way (do not auto-invoke named modules, only the anonymous ones)
-        const resultAnonymousDefine = this._defineAnonymousModule(dependencies, factory, isNamed);
-        const resultNamedDefine = isNamed ? this._defineNamedModule(name, dependencies, factory) : null;
+        const resultAnonymousDefine = this._defineAnonymousModule(args.dependencies, args.factory, isNamed);
+        const resultNamedDefine = isNamed ? this._defineNamedModule(args.name, args.dependencies, args.factory) : null;
         this.events.publish(`${constants.events.ns}${constants.events.define}`, {args});
         return resultNamedDefine || resultAnonymousDefine;
     }
