@@ -9,6 +9,7 @@ import js from '../loaders/js.js';
 import json from '../loaders/json.js';
 import tag from '../loaders/tag.js';
 import wasm from '../loaders/wasm.js';
+import esm from '../loaders/esm.js';
 
 export default class{
 
@@ -27,6 +28,7 @@ export default class{
         this.add('txt', txt);
         this.add('json', json);
         this.add('css', css);
+        this.add('esm', esm);
     }
 
     add(type, loader){

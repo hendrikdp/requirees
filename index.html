@@ -124,6 +124,15 @@
             () => console.log(`Did not load react`)
         )
 
+        require.register({zod: "esm!https://esm.sh/zod@4.3.6"});
+        require.register({zod: "esm!https://esm.sh/zod@4.3.5"});
+        async function loadZod(){
+            const Zod436 = await window.requirees("zod");
+            const Zod435 = await window.requirees("zod@4.3.5");
+            const Zod434 = await window.requirees("esm!https://esm.sh/zod@4.3.4")
+            console.log("Loaded ZOD through ESM", Zod436, Zod435, Zod434);
+        }
+        loadZod();
     </script>
     <hello-world></hello-world>
     <my-component></my-component>
