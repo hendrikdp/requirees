@@ -15,19 +15,38 @@ export default class{
     }
 
     addFileType(options){
-        const that = this;
-        const version = that.str;
         //at this point only one url should be registered at a time...
         if(!options.url && options.urls instanceof Array) options.url = options.urls[0];
-        if(options.url && options.url.indexOf('${')>-1){
+        if(options.url && options.url.indexOf('$')>-1){
             try{
-                return this._processFileType({...options, url: new Function(['version', 'obj'],"return `" + options.url + "`")(version, that)});
+                return this._processFileType({...options, url: this._resolveUrlPlaceholders(options.url)});
             }catch(e){
                 console.warn('Error parsing registry URL', e);
             }
         }else{
             return this._processFileType(options);
         }
+    }
+
+    //Resolve placeholders in a registry url. Two tokens are supported:
+    //  $version         -> the version string ("1.2.3")
+    //  $obj.<property>   -> an own property of this version object ($obj.major)
+    _resolveUrlPlaceholders(url){
+        return url.replace(/\$version\b|\$obj(?:\.[A-Za-z_$][\w$]*)+/g, token => {
+            if(token === '$version') return String(this.str);
+            let current = this;
+            for(const property of token.slice(5).split('.')){ //strip the "$obj." prefix
+                //only traverse own properties, never prototype members/methods
+                if(current == null || !Object.prototype.hasOwnProperty.call(Object(current), property)){
+                    throw new Error(`RequireEs: unknown url placeholder ${token}`);
+                }
+                current = current[property];
+            }
+            if(typeof current !== 'string' && typeof current !== 'number'){
+                throw new Error(`RequireEs: url placeholder ${token} is not a primitive value`);
+            }
+            return String(current);
+        });
     }
 
     loadFileType(filetype){

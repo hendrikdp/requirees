@@ -102,7 +102,7 @@ PackageName | the name of the package
 Version | the version-number in string format: major.minor(.patch)(.build)(-releaseCandidate)
 Filetype | the file-extension - js/css/txt/xml/json/html/wasm/tag
 Default | indicates the default version
-Versions | array of versions to fill out in the URL (use placeholder ${version} in the url-string)
+Versions | array of versions to fill out in the URL (use the placeholder `$version` in the url-string)
 Url | single url string
 Urls | multiple urls for 1 package
 
@@ -110,6 +110,26 @@ Urls | multiple urls for 1 package
 > * Is a 'versions' attribute present in the package-value
 > * Is '@version' present in the package-name
 > * Is a version present in the url (cdnjs.com/17.0.2/package.js)
+
+#### URL placeholders
+
+A url may contain the following placeholders, which are substituted per version:
+
+Placeholder | Substituted with
+--- | ---
+`$obj.major` `$obj.minor` `$obj.patch` `$obj.build` `$obj.rc` | the individual version parts
+
+```js
+require.register({
+    react: {versions: ['15.6.2', '16.14.0'], url: 'https://cdn.com/react/$version/react.min.js'},
+    // individual parts, useful when they are separated by something other than a dot:
+    myapp: {versions: ['1.2.3'], url: 'https://cdn.com/app/$obj.major/$obj.minor/app.min.js'}
+});
+```
+
+> Tip - `$obj.<part>` matches up to the next non-word character, so it cannot be
+> immediately followed by another `.<part>`; use `$version` for the full dotted
+> version. Any other text is kept verbatim - a literal `${...}` is just a string.
 
 ### Samples
 ```js
@@ -122,7 +142,7 @@ require.register({
 require.register({
     react: {
         versions: ['0.14.9', '15.6.2', '15.7.0'],
-        url: 'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'
+        url: 'https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js'
     },
     'react@16.14.0-default': 'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js',
     'react@17.0.2': 'https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.production.min.js'

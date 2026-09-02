@@ -8,7 +8,7 @@
     <script src="build/requirees.js"></script>
     <script>
         //register some react versions
-        require.register({react: {versions: ['0.14.9', '15.6.2', '15.6.1', '15.3.1'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'}});
+        require.register({react: {versions: ['0.14.9', '15.6.2', '15.6.1', '15.3.1'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js'}});
         require.register({
             'react-dom': [
                 {
@@ -25,7 +25,7 @@
                 'https://cdnjs.cloudflare.com/ajax/libs/react/16.14.0/umd/react.production.min.js'
             ]
         });
-        require.register({jquery: {versions: ['3.1.0','3.5.0', '3.4.1'], url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/${version}/jquery.min.js'}});
+        require.register({jquery: {versions: ['3.1.0','3.5.0', '3.4.1'], url: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/$version/jquery.min.js'}});
         require.register({'jquery@3.2.0-default': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.0/jquery.min.js'});
         define("mypackage.js", ["react@^0.0.0", "jquery@3.4.1"], function(react, jq, j){console.log('Run the factory of my package', react.version, jq.fn.jquery, j)});
         require.register({"mypackage.json": "https://jsonplaceholder.typicode.com/posts"});

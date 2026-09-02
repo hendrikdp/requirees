@@ -271,14 +271,14 @@ describe('Registry handling - Add multiple packages', ()=>{
     };
 
    test('Process splitup to multiple versions', ()=>{
-       const splitVersions =  {react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'}};
+       const splitVersions =  {react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js'}};
        const reg = new Registry();
        const results = reg.add(splitVersions).toJson();
        expect(results).toEqual(multipleReactVersions);
    });
 
     test('Process splitup to multiple versions, with multiple sources', ()=>{
-        const splitVersions =  {react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], urls:['https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js','https://alt.com/${obj.major}/${obj.minor}/${obj.patch}/react.min.js']}};
+        const splitVersions =  {react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], urls:['https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js','https://alt.com/$obj.major/$obj.minor/$obj.patch/react.min.js']}};
         const reg = new Registry();
         const results = reg.add(splitVersions).toJson();
         expect(results).toEqual(multipleReactVersionsMultiUrl);
@@ -298,8 +298,8 @@ describe('Registry handling - Add multiple packages', ()=>{
 
     test('Add url if the same version is added to the package', ()=>{
         const reg = new Registry();
-        reg.add({react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url: 'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'}});
-        reg.add({react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url: 'https://alt.com/${obj.major}/${obj.minor}/${obj.patch}/react.min.js'}});
+        reg.add({react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url: 'https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js'}});
+        reg.add({react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url: 'https://alt.com/$obj.major/$obj.minor/$obj.patch/react.min.js'}});
         expect(reg.toJson()).toEqual(multipleReactVersionsMultiUrl);
     });
 
@@ -311,7 +311,7 @@ describe('Registry handling - Add multiple packages', ()=>{
                 'https://cdnjs.cloudflare.com/ajax/libs/react/15.5.3/react.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/react/14.8.3/react.min.js'
             ]});
-        reg.add({react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url: 'https://alt.com/${obj.major}/${obj.minor}/${obj.patch}/react.min.js'}});
+        reg.add({react: {versions: ['15.5.6', '12.5.6', '15.5.3', '14.8.3'], url: 'https://alt.com/$obj.major/$obj.minor/$obj.patch/react.min.js'}});
         expect(reg.toJson()).toEqual(multipleReactVersionsMultiUrl);
     });
 
@@ -322,9 +322,9 @@ describe('Registry handling - Add multiple packages', ()=>{
                 'https://cdnjs.cloudflare.com/ajax/libs/react/15.5.6/react.min.js',
                 'https://cdnjs.cloudflare.com/ajax/libs/react/14.8.3/react.min.js'
             ],
-            "lodash@4.17.15" :"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/${version}/lodash.min.js",
-            "lodash@4.16.0" :"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/${version}/lodash.min.js",
-            "lodash@4.17.2" :"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/${version}/lodash.min.js"
+            "lodash@4.17.15" :"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/$version/lodash.min.js",
+            "lodash@4.16.0" :"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/$version/lodash.min.js",
+            "lodash@4.17.2" :"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/$version/lodash.min.js"
         });
         const result = reg.toJson();
         expect(result).toEqual(resultReactAndLodashMixed);
@@ -347,8 +347,8 @@ describe('Registry handling - Add multiple packages', ()=>{
         const reg = new Registry();
         reg.add([
             {react: 'https://cdnjs.cloudflare.com/ajax/libs/react/15.5.6/react.min.js'},
-            {react: {url: 'https://cdnjs.cloudflare.com/ajax/libs/react/${obj.major}.${obj.minor}.${obj.patch}/react.min.js', version: '14.8.3'}},
-            {lodash: {versions:['4.17.15','4.17.2'], url: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/${version}/lodash.min.js'}},
+            {react: {url: 'https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js', version: '14.8.3'}},
+            {lodash: {versions:['4.17.15','4.17.2'], url: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/$version/lodash.min.js'}},
             {lodash: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.0/lodash.min.js'}
         ]);
         const result = reg.toJson();
@@ -359,7 +359,7 @@ describe('Registry handling - Add multiple packages', ()=>{
     test('Add multiple filetypes', ()=>{
         const reg = new Registry();
         reg.add([
-            {myproject: {versions:['1.10.5','1.10.6','2.1.0'], urls: ['https://myserver.com/${version}/myproject.min.js', 'https://myserver.com/${version}/myproject.min.css', 'https://myserver.com/${version}/myproject.html']}},
+            {myproject: {versions:['1.10.5','1.10.6','2.1.0'], urls: ['https://myserver.com/$version/myproject.min.js', 'https://myserver.com/$version/myproject.min.css', 'https://myserver.com/$version/myproject.html']}},
             {myproject: {type:'wasm', url:'https://myserver.com/1.10.5/mywasm.min.js'}}
         ]);
         const result = reg.toJson();
@@ -367,11 +367,20 @@ describe('Registry handling - Add multiple packages', ()=>{
     });
 
 
-    test('Code should fail with invalid url template', ()=>{
+    test('Code should fail with invalid url placeholder', ()=>{
         const reg = new Registry();
-        reg.add({myproject: 'https://myserver.com/1.10.1/${noneexisting}/myproject.min.js'});
+        reg.add({myproject: 'https://myserver.com/1.10.1/$obj.noneexisting/myproject.min.js'});
         const result = reg.toJson();
         expect(typeof result.myproject[0].filetypes.js).toBe('undefined');
+    });
+
+    test('A literal ${...} in a url is kept verbatim and never evaluated', ()=>{
+        global.__evaluated__ = false;
+        const reg = new Registry();
+        reg.add({myproject: {version: '1.0.0', url: 'https://myserver.com/${(global.__evaluated__ = true)}/app.js'}});
+        const result = reg.toJson();
+        expect(global.__evaluated__).toBe(false);
+        expect(result.myproject[0].filetypes.js.urls[0]).toBe('https://myserver.com/${(global.__evaluated__ = true)}/app.js');
     });
 
     test('Check if anonymous versions gets set', ()=>{
@@ -398,8 +407,8 @@ describe('Registry handling - Find packages', ()=>{
         reg = new Registry();
         reg.add({'react@default': 'https://cdnjs.cloudflare.com/ajax/libs/react/6.6.6/react.min.js'});
         reg.add({
-            react: {versions: ['12.5.6', '15.5.3', '15.5.6', '14.6.5', '14.8.3'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/${version}/react.min.js'},
-            lodash: {versions: ['4.17.15', '4.16.0', '4.17.2', '4.16.2', '4.16.8', '4.5.2'], url:'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/${version}/lodash.min.js'}
+            react: {versions: ['12.5.6', '15.5.3', '15.5.6', '14.6.5', '14.8.3'], url:'https://cdnjs.cloudflare.com/ajax/libs/react/$version/react.min.js'},
+            lodash: {versions: ['4.17.15', '4.16.0', '4.17.2', '4.16.2', '4.16.8', '4.5.2'], url:'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/$version/lodash.min.js'}
         });
         reg.add({react: 'https://myserver.com/anyreactversion.min.js'});
     });
